@@ -1,2 +1,2 @@
 # chrysafly-motion
-For eatART Chrysafly project.
+For eatART's Chrysafly project.
