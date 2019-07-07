@@ -6,7 +6,7 @@ Getting acquainted with the materials:
 	— Pololu Dial G2 High Power Motor Driver Shields
 	— Midwest Motion Products MMP TM57-36-12V Motors
 
-Poll product page:
+Pololu product page:
 [Pololu Dual G2 High-Power Motor Driver 24v14 Shield for Arduino](https://www.pololu.com/product/2516)
 
 DC motor control like steppers:
