@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
-
+#include <EnableInterrupt.h>
 
 #define PWM_PIN 3
+
 int pwm_value;
 
 // Initialize 24v14 as our shield version
