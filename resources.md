@@ -15,7 +15,7 @@ And PID:
 * [(PDF) DC motor position control for pulley axial movement of an electromechanical dual acting pulley (EMDAP) CVT system | Hishamuddin Jamaluddin - Academia.edu](https://www.academia.edu/26495242/DC_motor_position_control_for_pulley_axial_movement_of_an_electromechanical_dual_acting_pulley_EMDAP_CVT_system?auto=download)
 
 Important for reading PWM signals in general (use case 3):
-[Three Ways To Read A PWM Signal With Arduino | BenRipley.com](http://www.benripley.com/diy/arduino/three-ways-to-read-a-pwm-signal-with-arduino/)
+* [Three Ways To Read A PWM Signal With Arduino | BenRipley.com](http://www.benripley.com/diy/arduino/three-ways-to-read-a-pwm-signal-with-arduino/)
 
 Important for reading multiple PWM signals:
 * [GitHub - GreyGnome/EnableInterrupt: New Arduino interrupt library, designed for Arduino Uno/Mega 2560/Leonardo/Due](https://github.com/GreyGnome/EnableInterrupt)
