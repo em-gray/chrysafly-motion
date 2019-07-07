@@ -18,10 +18,10 @@ Important for reading PWM signals in general (use case 3):
 [Three Ways To Read A PWM Signal With Arduino | BenRipley.com](http://www.benripley.com/diy/arduino/three-ways-to-read-a-pwm-signal-with-arduino/)
 
 Important for reading multiple PWM signals:
-[GitHub - GreyGnome/EnableInterrupt: New Arduino interrupt library, designed for Arduino Uno/Mega 2560/Leonardo/Due](https://github.com/GreyGnome/EnableInterrupt)
-[RCArduino: How To Read Multiple RC Channels](http://rcarduino.blogspot.com/2012/04/how-to-read-multiple-rc-channels-draft.html)
-[RCArduino: How To Read an RC Receiver With A Microcontroller - Part 1](http://rcarduino.blogspot.com/2012/01/how-to-read-rc-receiver-with.html)
- [https://forum.arduino.cc/index.php?topic=102472.0](https://forum.arduino.cc/index.php?topic=102472.0) 
+* [GitHub - GreyGnome/EnableInterrupt: New Arduino interrupt library, designed for Arduino Uno/Mega 2560/Leonardo/Due](https://github.com/GreyGnome/EnableInterrupt)
+* [RCArduino: How To Read Multiple RC Channels](http://rcarduino.blogspot.com/2012/04/how-to-read-multiple-rc-channels-draft.html)
+* [RCArduino: How To Read an RC Receiver With A Microcontroller - Part 1](http://rcarduino.blogspot.com/2012/01/how-to-read-rc-receiver-with.html)
+* [https://forum.arduino.cc/index.php?topic=102472.0](https://forum.arduino.cc/index.php?topic=102472.0) 
 
 Datasheet for MAE3
-https://cdn.usdigital.com/assets/datasheets/MAE3_datasheet.pdf?k=636980548535852929
+* https://cdn.usdigital.com/assets/datasheets/MAE3_datasheet.pdf?k=636980548535852929
