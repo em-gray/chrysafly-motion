@@ -7,12 +7,12 @@ Getting acquainted with the materials:
 * Midwest Motion Products MMP TM57-36-12V Motors
 
 Pololu product page:
-[Pololu Dual G2 High-Power Motor Driver 24v14 Shield for Arduino](https://www.pololu.com/product/2516)
+* [Pololu Dual G2 High-Power Motor Driver 24v14 Shield for Arduino](https://www.pololu.com/product/2516)
 
 DC motor control like steppers:
- [https://forum.arduino.cc/index.php?topic=8652.0](https://forum.arduino.cc/index.php?topic=8652.0) 
+* [https://forum.arduino.cc/index.php?topic=8652.0](https://forum.arduino.cc/index.php?topic=8652.0) 
 And PID:
-[(PDF) DC motor position control for pulley axial movement of an electromechanical dual acting pulley (EMDAP) CVT system | Hishamuddin Jamaluddin - Academia.edu](https://www.academia.edu/26495242/DC_motor_position_control_for_pulley_axial_movement_of_an_electromechanical_dual_acting_pulley_EMDAP_CVT_system?auto=download)
+* [(PDF) DC motor position control for pulley axial movement of an electromechanical dual acting pulley (EMDAP) CVT system | Hishamuddin Jamaluddin - Academia.edu](https://www.academia.edu/26495242/DC_motor_position_control_for_pulley_axial_movement_of_an_electromechanical_dual_acting_pulley_EMDAP_CVT_system?auto=download)
 
 Important for reading PWM signals in general (use case 3):
 [Three Ways To Read A PWM Signal With Arduino | BenRipley.com](http://www.benripley.com/diy/arduino/three-ways-to-read-a-pwm-signal-with-arduino/)
