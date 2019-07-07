@@ -1,10 +1,10 @@
 # Chrysafly Log
 ### Day 1: Saturday, July 6th
 Getting acquainted with the materials:
-	— Arduino Uno
-	— MAE3-P12 magnetic encoders
-	— Pololu Dial G2 High Power Motor Driver Shields
-	— Midwest Motion Products MMP TM57-36-12V Motors
+* Arduino Uno
+* MAE3-P12 magnetic encoders
+* Pololu Dial G2 High Power Motor Driver Shields
+* Midwest Motion Products MMP TM57-36-12V Motors
 
 Pololu product page:
 [Pololu Dual G2 High-Power Motor Driver 24v14 Shield for Arduino](https://www.pololu.com/product/2516)
