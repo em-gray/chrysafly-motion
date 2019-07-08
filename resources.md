@@ -9,6 +9,9 @@ Getting acquainted with the materials:
 Pololu product page:
 * [Pololu Dual G2 High-Power Motor Driver 24v14 Shield for Arduino](https://www.pololu.com/product/2516)
 
+Polulu motor driver library: 
+* [Arduino library for the Pololu Dual G2 High Power Motor Driver Shields](https://github.com/pololu/dual-g2-high-power-motor-shield)
+
 DC motor control like steppers:
 * [https://forum.arduino.cc/index.php?topic=8652.0](https://forum.arduino.cc/index.php?topic=8652.0) 
 And PID:
