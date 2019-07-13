@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
-#include <EnableInterrupt.h>
 #include <encoder.h>
 // Wing segment reference:
 //     _.._        _.._
@@ -22,8 +21,9 @@
 #define encoder_A A3 // some analog in pin
 #define encoder_B A5 // some analog in pin
 
-int currentSpeed = 300;                            // speed (Set Point)
-int targetSpeed = 0;                              // speed (actual value)
+int targetVel;
+bool isClosing;
+int safetyFactor;  // distance from max to be kept to stay safe
 
 // Initialize 24v14 as our motor driver
 DualG2HighPowerMotorShield24v14 md;
@@ -45,6 +45,10 @@ void setup() {
   pinMode(encoder_A, INPUT); 
   pinMode(encoder_B, INPUT);
   
+  // assign config variables
+  targetVel = 150;  // operational velocity (0-400)
+  
+
   // Initialize motor driver
   md.init();
   md.calibrateCurrentOffsets();
@@ -54,21 +58,35 @@ void setup() {
   // init both encoders
 
   calibrate();  
-
-  
-
 }
 
+// At the start of the loop, assuming proper calibration, the wings should be
+// at their max desired open position
 void loop() {
+  int cascadeVal = 5;
+  Encoder encodA(encoder_A);
+  Encoder encodB(encoder_B);
+
+  if (isClosing){
+    targetVel = -
+    if (encodA.getPos() > safetyFactor){
+      // drive closed at fixed velocity
+    }
+
+    if (encodA.getPos() >= cascadeVal && encodB.getPos() > safetyFactor){
+      // drive closed at fixed velocity
+    }
+  
+
+  }
+
 
   // put your main code here, to run repeatedly:
   // while (not at max limit - safety factor)
   // start motion of A
   // start motion of B
 
-  // PID for both to keep velocity constant
-
-
+  // PID for A to keep velocity constant
 
   
 }
