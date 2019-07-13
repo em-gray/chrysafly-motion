@@ -47,7 +47,7 @@ void setup() {
   
   // assign config variables
   targetVel = 150;  // operational velocity (0-400)
-  
+
 
   // Initialize motor driver
   md.init();
@@ -67,16 +67,6 @@ void loop() {
   Encoder encodA(encoder_A);
   Encoder encodB(encoder_B);
 
-  if (isClosing){
-    targetVel = -
-    if (encodA.getPos() > safetyFactor){
-      // drive closed at fixed velocity
-    }
-
-    if (encodA.getPos() >= cascadeVal && encodB.getPos() > safetyFactor){
-      // drive closed at fixed velocity
-    }
-  
 
   }
 
