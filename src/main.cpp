@@ -35,6 +35,7 @@ void calibrate(){
 
 int getPid(int targetValue, int currentValue)   {           
   // will return target velocity given current velocity, to be sent to motor driver
+  return 0;
 }
 
 void setup() {

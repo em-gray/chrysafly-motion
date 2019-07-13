@@ -6,25 +6,20 @@
 Encoder::Encoder(int input)
 {
     pin = input;
-    lapCount = 0;
-    position = analogRead(pin);
-    lastPos = 0;
+    for (int i = 0; i < buffer; i++) {
+        position[i].time=millis();
+    }
 }
 
-// Encoder member functions
+//returns angular velocity of 
+int getVelocity(){
+    return 0;
+}
 
+int getPosition(){
+    return 0;
+}
 // Update encoder's lap count depending on whether it's crossed 
 // between the top two quadrants, and in which direction
 void update(){
-    int pwmValue = pulseIn(pin, HIGH);
-
-    if ((0.75*(maxPos) <= lastPos < maxPos) && (0 <= pwmValue <= 0.25*(maxPos)))
-    {
-        lapCount++;
-    } 
-    else if ((0.75*(maxPos) <= pwmValue < maxPos) && (0 <= lastPos <= 0.25*(maxPos)))
-    {
-        lapCount--;
-    }
-        lastPos = pwmValue;
-    }
+}
