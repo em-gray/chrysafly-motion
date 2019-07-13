@@ -47,12 +47,14 @@ void setup() {
   // Initialize motor driver
   md.init();
   md.calibrateCurrentOffsets();
+  md.enableDrivers();
+  delay(1); // The drivers require a maximum of 1ms to elapse when brought out of sleep mode.
 
   // init both encoders
 
   calibrate();  
 
-  delay(10);
+  
 
 }
 
@@ -64,6 +66,7 @@ void loop() {
   // start motion of B
 
   // PID for both to keep velocity constant
+
 
 
   
