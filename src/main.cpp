@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
 #include <EnableInterrupt.h>
-
+#include <encoder.h>
 // Wing segment reference:
 //     _.._        _.._
 //   :' A  \     /  A `;  
