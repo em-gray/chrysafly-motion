@@ -25,7 +25,7 @@
 int currentSpeed = 300;                            // speed (Set Point)
 int targetSpeed = 0;                              // speed (actual value)
 
-// Initialize 24v14 as our shield version
+// Initialize 24v14 as our motor driver
 DualG2HighPowerMotorShield24v14 md;
 
 void calibrate(){
@@ -38,18 +38,21 @@ int getPid(int targetValue, int currentValue)   {
 }
 
 void setup() {
-
-  analogReference(EXTERNAL);       
-  Serial.begin(115200);                     // Current external ref is 3.3V
+  Serial.begin(115200);                     
   pinMode(motor_A, OUTPUT);
   pinMode(motor_B, OUTPUT);
   pinMode(encoder_A, INPUT); 
   pinMode(encoder_B, INPUT);
+  
+  // Initialize motor driver
   md.init();
+  md.calibrateCurrentOffsets();
 
   // init both encoders
 
   calibrate();  
+
+  delay(10);
 
 }
 
@@ -61,6 +64,8 @@ void loop() {
   // start motion of B
 
   // PID for both to keep velocity constant
+
+
   
 }
 
