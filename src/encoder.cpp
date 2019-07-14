@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <encoder.h>
-#include <Arduino.h>
 
 // Encoder constructor
 Encoder::Encoder(int input)
