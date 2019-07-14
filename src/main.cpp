@@ -22,11 +22,25 @@
 #define encoder_A A3 // some analog in pin
 #define encoder_B A5 // some analog in pin
 
+#define READ_RATE 100 //miliseconds 
+
 int currentSpeed = 300;                            // speed (Set Point)
 int targetSpeed = 0;                              // speed (actual value)
+int previousUpdate = millis();
+
+Encoder A;
+Encoder B;
 
 // Initialize 24v14 as our shield version
 DualG2HighPowerMotorShield24v14 md;
+
+void encoderUpdate() {
+  if (millis() - previousUpdate >= READ_RATE ) {
+    A.update();
+    B.update();
+    previousUpdate = millis();  // or += READ_RATE...
+  }
+}
 
 void calibrate(){
   // This is where the menu state machine and its navigation is going to go.
