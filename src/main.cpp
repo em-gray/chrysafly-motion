@@ -73,4 +73,3 @@ void setup() {
 void loop() {
   encoderUpdate();
 }
-
