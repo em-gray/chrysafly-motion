@@ -7,7 +7,7 @@
 #define P_COEFF 30;
 #define OFFSET 50;
 
-// CONSTANTS
+// CONSTANTS -- DO NOT CHANGE
 #define MIN_SPEED -400
 #define MAX_SPEED 400
 #define TOP_MOTOR 0
@@ -16,23 +16,23 @@
 DualG2HighPowerMotorShield24v14 motorLib;
 
 Control::Control() {
-    // Pin numbers for encoders
-    /// TODO: set encoder pin IO!
-    int topEncoder = 0; 
-    int bottomEncoder = 1;
+    // // Pin numbers for encoders
+    // /// TODO: set encoder pin IO!
+    // int topEncoder = 0; 
+    // int bottomEncoder = 1;
 
-    // Initialize encoder objects
-    Encoder encoders[2] = {Encoder(topEncoder), Encoder(bottomEncoder)};
+    // // Initialize encoder objects
+    // Encoder encoders[2] = {Encoder(topEncoder), Encoder(bottomEncoder)};
 }
 
-void Control::run(int time, float nextPos, int motor, boolean closing) {
-    float currentPos = encoders[motor].getPosition();
-    float diff = nextPos - currentPos;
+void Control::run(float currPos, float nextPos, int motor) {
+    // float currentPos = encoders[motor].getPosition();
+    float diff = nextPos - currPos;
 
     int speed = diff*(float)P_COEFF;
-    if (closing)
-        int speed = speed - OFFSET;
-    }
+    // if (closing)
+    //     int speed = speed - OFFSET;
+    // }
     
     if (motor == TOP_MOTOR) {
         motorLib.setM1Speed(speed);
