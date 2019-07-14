@@ -62,25 +62,6 @@ void calibrate(){
   // This will set minSweep and maxSweep for each wing level
 }          
 
-// assume min-max will take a sigmoidLength: 6000ms
-// assume minimum position is zero
-// Motor A is 0, Motor B is 1
-float getSigmoid(int motor, float maxPos, float x, bool isClosing){
-  // basically the smoothstep function
-  // scale, bias and saturate x to 0..
-  x = clamp((x / maxPos), 0, sigmoidLength);
-  // evaluate hermite interpolation polynomial
-  return x * x* (3 - 2 * x);
-}
-
-
-float clamp(float x, float startPoint, int endPoint){
-  if (x < startPoint)
-    int x = startPoint;
-  if (x > endPoint)
-    x = endPoint;
-  return x;
-}
 
 void setup() {
   Serial.begin(115200);                     
