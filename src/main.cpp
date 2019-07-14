@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
-#include <EnableInterrupt.h>
-#include <encoder.h>
+#include "Encoder.h"
+#include <Wire.h>
+
 // Wing segment reference:
 //     _.._        _.._
 //   :' A  \     /  A `;  
@@ -19,26 +20,26 @@
 #define motor_A 9 // some pwm pin (from motor driver)
 #define motor_B 10 // some pwm pin (from motor driver)
 
-#define encoder_A A3 // some analog in pin
-#define encoder_B A5 // some analog in pin
+#define encoder_A A2 // some analog in pin
+#define encoder_B A3 // some analog in pin
 
-#define READ_RATE 100 //miliseconds 
+#define READ_RATE 10 //miliseconds 
 
 int currentSpeed = 300;                            // speed (Set Point)
 int targetSpeed = 0;                              // speed (actual value)
-int previousUpdate = millis();
+long previousUpdate = millis();
 
-Encoder A;
-Encoder B;
+Encoder A(encoder_A);
+Encoder B(encoder_B);
 
-// Initialize 24v14 as our shield version
+// Initialize 24v14 as ouçr shield version
 DualG2HighPowerMotorShield24v14 md;
 
 void encoderUpdate() {
   if (millis() - previousUpdate >= READ_RATE ) {
-    A.update();
-    B.update();
     previousUpdate = millis();  // or += READ_RATE...
+    A.update();
+    //B.update();
   }
 }
 
@@ -53,9 +54,9 @@ int getPid(int targetValue, int currentValue)   {
 }
 
 void setup() {
-
-  analogReference(EXTERNAL);       
-  Serial.begin(115200);                     // Current external ref is 3.3V
+  //analogReference(EXTERNAL);       
+  Serial.begin(9600);                   
+  Serial.println("Online");
   pinMode(motor_A, OUTPUT);
   pinMode(motor_B, OUTPUT);
   pinMode(encoder_A, INPUT); 
@@ -69,13 +70,6 @@ void setup() {
 }
 
 void loop() {
-
-  // put your main code here, to run repeatedly:
-  // while (not at max limit - safety factor)
-  // start motion of A
-  // start motion of B
-
-  // PID for both to keep velocity constant
-  
+  encoderUpdate();
 }
 

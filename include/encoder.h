@@ -1,7 +1,7 @@
-#ifndef ENCODER_H
+//#ifndef ENCODER_H
 #define ENCODER_H
 
-static const int buffer = 10;
+static const int buffer = 2;
 // should really be using a circular buffere here instead of an array 
 // but we don't got time for that
 
@@ -24,14 +24,9 @@ class Encoder{
         Encoder(int input);
 
         void update();
-        void setMax();
-        void setMin();
 
         float getVelocity();
         float getPosition();
-
-        float Max();
-        float Min();
 };
 
-#endif
+//#endif
