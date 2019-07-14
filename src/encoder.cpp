@@ -4,6 +4,10 @@
 #define range 4096 // 12-bit system, also timeout speed 
 #define bandgap 2048
 
+// NOTE: Pins (input) for encoder constructor:
+// A2 -> top motor
+// A3 -> bottom motor
+
 // Encoder constructor
 Encoder::Encoder(int input) {
     pin = input;
