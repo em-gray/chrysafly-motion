@@ -1,12 +1,12 @@
-#ifndef ENCODER_H
+//#ifndef ENCODER_H
 #define ENCODER_H
 
-static const int buffer = 10;
+static const int buffer = 2;
 // should really be using a circular buffere here instead of an array 
-// but we don't got time for that. 
+// but we don't got time for that
 
 struct Position {
-    int positionAngle;
+    int positionAngular; // from 0 to 4095 for 12 bit encoder
     int numRevolutions;
     int time;
 };
@@ -17,6 +17,8 @@ class Encoder{
         Position maxPos;
         Position minPos;
         int pin;
+
+        void shift();
     
     public:
         Encoder(int input);
@@ -28,8 +30,8 @@ class Encoder{
         float getVelocity();
         float getPosition();
 
-        float Max();
-        float Min();
+        float getVelocity();
+        float getPosition();
 };
 
-#endif
+//#endif
