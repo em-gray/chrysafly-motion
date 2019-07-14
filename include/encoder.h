@@ -22,8 +22,14 @@ class Encoder{
     
     public:
         Encoder(int input);
+        Encoder();
 
         void update();
+        void setMax();
+        void setMin();
+
+        float getVelocity();
+        float getPosition();
 
         float getVelocity();
         float getPosition();
