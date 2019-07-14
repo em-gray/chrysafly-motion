@@ -22,6 +22,7 @@ class Encoder{
     
     public:
         Encoder(int input);
+        Encoder();
 
         void update();
         void setMax();
