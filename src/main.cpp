@@ -98,4 +98,3 @@ void loop() {
     calibration.getMin(0); // Min position of top motor
   } 
 }
-
