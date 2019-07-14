@@ -10,6 +10,8 @@ class Calibration{
         float minPos[];
 
         // 3-bit addresses for multiplexer
+        bool calibAddr[];
+        bool motorAddr[];
         bool maxAddr[];
         bool minAddr[];
         bool openAddr[];
@@ -35,6 +37,8 @@ class Calibration{
         Calibration();
 
         // Methods for reading buttons through multiplexer
+        bool readCalibSwitch();
+        bool readMotorSwitch();
         bool readOpenButton();
         bool readCloseButton();
         bool readSetMaxButton();

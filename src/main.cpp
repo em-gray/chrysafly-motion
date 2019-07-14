@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
 #include "Encoder.h"
+#include <Calibration.h>
 #include <Wire.h>
 
 // Wing segment reference:
@@ -31,6 +32,7 @@ long previousUpdate = millis();
 
 Encoder A(encoder_A);
 Encoder B(encoder_B);
+Calibration calibration;
 
 // Initialize 24v14 as ouçr shield version
 DualG2HighPowerMotorShield24v14 md;
@@ -46,7 +48,7 @@ void encoderUpdate() {
 void calibrate(){
   // This is where the menu state machine and its navigation is going to go.
   // This will set minSweep and maxSweep for each wing level
-  
+
 }          
 
 int getPid(int targetValue, int currentValue)   {           
@@ -66,11 +68,34 @@ void setup() {
 
   // init both encoders
 
-  calibrate();  
+  // Initialize Calibration object
+  Calibration calibration = Calibration();
 
 }
 
 void loop() {
   encoderUpdate();
+
+  // Check if calibration switch is on
+  // If so, run calibration protocall
+  if (calibration.readCalibSwitch()) {
+    // Check if open or close buttons are pressed (if both, default it open)
+    if (calibration.readOpenButton()) {
+        
+    } else if (calibration.readCloseButton()) {
+      
+    }
+
+    // Check if set max or set min buttons are pressed (if both default is set max)
+    if (calibration.readSetMaxButton()) {
+      calibration.setMax();
+    } else if (calibration.readSetMinButton()) {
+      calibration.setMin();
+    }
+
+    //Exampled of getting motor max/min vals
+    calibration.getMax(1); // Max position of bottom motor
+    calibration.getMin(0); // Min position of top motor
+  } 
 }
 
