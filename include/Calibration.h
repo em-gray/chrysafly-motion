@@ -1,58 +1,27 @@
-#ifndef CALIBRATION_H
-#define CALIBRATION_H
-#include <Encoder.h>
+#ifndef SIGMOIDPATH_H
+#define SIGMOIDPATH_H
 
-class Calibration{
-    private: 
-        // Max and min positions of wing in number of rotations
-        // Top motor is 0, bottom is 1
-        float maxPos[];
-        float minPos[];
+struct Motor {
+    float minPos;
+    float maxPos;
+    float span = maxPos - minPos;
+};
 
-        // 3-bit addresses for multiplexer
-        bool calibAddr[];
-        bool arduinoAddr[];
-        bool motorAddr[];
-        bool openAddr[];
-        bool closeAddr[];
-        bool maxAddr[];
-        bool minAddr[];
- 
+class SigmoidPath{
+    private:
+        Motor m0;
+        Motor m1;
+        Motor m2;
+        Motor m3;
 
-        // Pin numbers for encoders and multiplexer
-        int top_encoder;
-        int bot_encoder;
-        int sigOut;
-        int sigC;
-        int sigB;
-        int sigA;
-
-        // Encoder objects
-        Encoder top = Encoder::Encoder(top_encoder);
-        Encoder bottom = Encoder::Encoder(bot_encoder);
-
-        // Pin for top/bottom toggle switch
-        int toggle_pin;
-    
     public:
-        Calibration();
-
-        // Methods for reading buttons through multiplexer
-        bool readCalibSwitch();
-        bool readMotorSwitch();
-        bool readArduinoSwitch();
-        bool readOpenButton();
-        bool readCloseButton();
-        bool readSetMaxButton();
-        bool readSetMinButton();
-
-        // Methods for setting max and min positions
-        void setMax(int motor);
-        void setMin(int motor);
-
-        // Methods for getting max and min positions
-        float getMax(int motor);
-        float getMin(int motor);
+        SigmoidPath();
+        void Init(float minPos[], float maxPos[]);
+        // returns desired position givne time
+        float getNextPos(int motor, int time);
+        int getPeriod();
+        float getPath(Motor motor, int time, int offset, bool closing);
+        
 };
 
 #endif
