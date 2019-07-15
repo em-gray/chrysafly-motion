@@ -314,12 +314,12 @@ void loop() {
     timeRef = time;
   };
 
-  //Serial.print("Target: ");
-  sigmoidPath.getNextPos(3,((time - timeRef)/1000.0));
-  //Serial.print("Time: ");
-  //Serial.println((time - timeRef)/1000.0);
-  //Serial.print("Period: ");
-  //Serial.println(period);
+  Serial.print("Target: ");
+  Serial.println(sigmoidPath.getNextPos(3,((time - timeRef)/1000.0)));
+  Serial.print("Time: ");
+  Serial.println((time - timeRef)/1000.0);
+  Serial.print("Period: ");
+  Serial.println(period);
 
   //normalRun();
 
