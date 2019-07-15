@@ -4,7 +4,7 @@
 int cascadeOffset = 5000;
 int sigmoidLength = 60000;
 int midpointPause = 5000;
-int total_duration = sigmoidLength * 2 + 6 * cascadeOffset + midpointPause;
+int totalDuration = sigmoidLength * 2 + 6 * cascadeOffset + midpointPause;
 
 
 float clamp(float x, float startPoint, int endPoint){
@@ -22,7 +22,7 @@ float getPath(Motor motor, int time, int offset, bool closing){
         }
     else 
     {
-        float pos = clamp((-1 * (time - (total_duration / 2) - sigmoidLength - offset * cascadeOffset)) / sigmoidLength, 0, 1);
+        float pos = clamp((-1 * (time - (totalDuration / 2) - sigmoidLength - offset * cascadeOffset)) / sigmoidLength, 0, 1);
         return motor.maxPos - (motor.span) * (pos * pos * (3 - 2 * pos));
     }
 };
@@ -30,7 +30,7 @@ float getPath(Motor motor, int time, int offset, bool closing){
 float SigmoidPath::getNextPos(int motor, int time){
     bool closing = 1;
     float pos;
-    if(time < total_duration / 2){
+    if(time < totalDuration / 2){
         // Generate opening paths based on motor params
         switch(motor){
             case 0:
@@ -85,3 +85,6 @@ void SigmoidPath::Init(float minPos[], float maxPos[]){
     m3.minPos = minPos[3];
 };
 
+int SigmoidPath::getPeriod(){
+    return totalDuration;
+};
