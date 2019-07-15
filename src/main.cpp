@@ -45,10 +45,7 @@ float pos[2];
 float nextPos[] = {0,0,0,0};
 boolean calibrating;
 boolean wasCalibrating;
-
-Encoder A(encoder_A);
-Encoder B(encoder_B);
-Calibration calibration;
+int calibrateMotor;
 
 Encoder A(A_ENCODER_PIN);
 Encoder B(B_ENCODER_PIN);
@@ -108,7 +105,7 @@ void calibrate(){
         calibratingMotor(calibrateMotor, true);
       }
       else {
-        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor]);
+        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
       }
     }
     else {
