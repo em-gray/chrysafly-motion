@@ -1,19 +1,10 @@
 #include <Arduino.h>
 #include <SigmoidPath.h>
 
-SigmoidPath::SigmoidPath(float minPos[], float maxPos[]){
-    cascadeOffset = 5000;
-    sigmoidLength = 60000;
-    midpointPause = 1000;
-
-    totalDuration = sigmoidLength * 2 + 6 * cascadeOffset + midpointPause;
-    
-    m0.maxPos = maxPos[0];
-    m0.minPos = minPos[0];
-
-    m1.maxPos = maxPos[1];
-    m1.minPos = minPos[1];
-};
+int cascadeOffset = 5000;
+int sigmoidLength = 60000;
+int midpointPause = 5000;
+int totalDuration = sigmoidLength * 2 + 6 * cascadeOffset + midpointPause;
 
 float clamp(float x, float startPoint, int endPoint){
     if (x < startPoint) x = startPoint;
@@ -21,35 +12,59 @@ float clamp(float x, float startPoint, int endPoint){
     return x;
 };
 
+float getPath(Motor motor, int time, int offset, bool closing){
+    if (closing){
+        float pos = clamp((time - offset * cascadeOffset) / sigmoidLength, 0, 1);
+        // Evaluate Hermite interpolation poluynomial, scale according to max
+        return motor.maxPos - (motor.span) * (pos * pos * (3 - 2 * pos));
+    }
+    else {
+        float pos = clamp((-1 * (time - (totalDuration / 2) - sigmoidLength - offset * cascadeOffset)) / sigmoidLength, 0, 1);
+        return motor.maxPos - (motor.span) * (pos * pos * (3 - 2 * pos));
+    }
+};
 
-// Motor A is 0, Motor B is 1. 
-// Assume Motor A opens before Motor B, and Motor B closes before Motor A.
-// Assume time param is relative to start of full-motion loop timer
-float SigmoidPath::getNextPos(int motor, int time, bool isClosing){
-    int pos;
-    if(!isClosing){
+SigmoidPath::SigmoidPath(float minPos[], float maxPos[]){
+    m0.maxPos = maxPos[0];
+    m0.minPos = minPos[0];
+
+    m1.maxPos = maxPos[1];
+    m1.minPos = minPos[1];
+
+    m2.maxPos = maxPos[2];
+    m2.minPos = minPos[2];
+
+    m3.maxPos = maxPos[3];
+    m3.minPos = minPos[3];
+};
+
+float SigmoidPath::getNextPos(int motor, int time){
+    bool closing = 1;
+    if(time < totalDuration / 2){
         // Generate opening paths based on motor params
         switch(motor){
             case 0:
-                pos = clamp((time - cascadeOffset) / sigmoidLength, 0, 1);
-                // Evaluate Hermite interpolation poluynomial
-                return (m0.maxPos - m0.minPos) * (pos * pos * (3 - 2 * pos)) + m0.minPos;
+                return getPath(m0, time, 3, closing);
             case 1:
-                pos = clamp(time / sigmoidLength, m1.minPos, m1.maxPos);
-                // Evaluate Hermite interpolation poluynomial
-                return (m1.maxPos - m1.minPos) * (pos * pos * (3 - 2 * pos)) + m1.maxPos;
+                return getPath(m1, time, 2, closing);
+            case 2:
+                return getPath(m2, time, 1, closing);
+            case 3:
+                return getPath(m3, time, 0, closing);
         }
     } else {
         // Generate closing paths based on motor params
         switch(motor){
             case 0:
-                pos = clamp((-1 * (time - sigmoidLength)) / sigmoidLength, m0.minPos, m0.maxPos);
-                // Evaluate Hermite interpolation poluynomial
-                return (m0.maxPos - m0.minPos) * (pos * pos * (3 - 2 * pos)) + m0.minPos;
+                return getPath(m0, time, 0, !closing);
             case 1:
-                pos = clamp((-1 * (time - sigmoidLength - cascadeOffset)) / sigmoidLength, m1.minPos, m1.maxPos);
-                // Evaluate Hermite interpolation poluynomial
-                return (m1.maxPos - m1.minPos) * (pos * pos * (3 - 2 * pos)) + m0.minPos;
+                return getPath(m1, time, 1, !closing);
+            case 2:
+                return getPath(m2, time, 2, !closing);
+            case 3:
+                return getPath(m3, time, 3, !closing);
         }
     }
+    // safe return in case something is missed
+    return 10;
 };

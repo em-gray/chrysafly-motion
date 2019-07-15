@@ -3,6 +3,7 @@
 #include "Encoder.h"
 #include <Calibration.h>
 #include <Wire.h>
+#include<SigmoidPath.h>
 
 // Wing segment reference:
 //     _.._        _.._
