@@ -43,19 +43,19 @@ long time;
 long timeRef;
 float pos[2];
 float nextPos[] = {0,0,0,0};
+int calibrateMotor;
 boolean calibrating;
 boolean wasCalibrating;
 
-Encoder A(encoder_A);
-Encoder B(encoder_B);
-Calibration calibration;
+float allMin[] = {0, 0, 0, 0};
+float allMax[] = {0, 0, 0, 0};
 
 Encoder A(A_ENCODER_PIN);
 Encoder B(B_ENCODER_PIN);
 Calibration calibration;
-SigmoidPath sigmoidPath;
 LinePath linePath;
 Control motorControl;
+SigmoidPath sigmoidPath(allMin, allMax);
 
 // Initialize 24v14 as our shield version
 DualG2HighPowerMotorShield24v14 md;
@@ -108,7 +108,7 @@ void calibrate(){
         calibratingMotor(calibrateMotor, true);
       }
       else {
-        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor]);
+        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
       }
     }
     else {
@@ -129,6 +129,8 @@ void normalRun() {
     timeRef = time;
     wasCalibrating = false;
   }
+
+  sigmoidPath.getPeriod
 
   // TODO: add check here for whether timeFlag been reached --> overwrite "timeRef"
   if(ARDUINO_0) {
@@ -163,9 +165,29 @@ void setup(float pos[2], long time) {
 
 void loop() {
   dataInit();
+  if(wasCalibrating) {
+
+  }
 
   // Check if calibration switch is on --> if on, run calibration protocol
   if (!calibration.readCalibSwitch()) {
+
+    if(wasCalibrating) {
+      if(ARDUINO_0) {
+        for(i = 0; i < 2; i++) {
+          allMin[i] = calibration.getMin(i);
+          allMax[i] = calibration.getMax(i);
+        }
+      }
+      else {
+        for(i = 2; i < 4; i++) {
+          allMin[i] = calibration.getMin(i);
+          allMax[i] = calibration.getMax(i);
+        }
+      }
+      SigmoidPath sigmoidPath(allMin, allMax);
+    }
+
     // Check if open or close buttons are pressed (if both, default it open)
     normalRun();
   } 
