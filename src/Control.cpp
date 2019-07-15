@@ -14,24 +14,15 @@
 #define BOTTOM_MOTOR 1
 
 bool isInit = false;
+int cappedSpeed;
+int flippedSpeed;
 
 DualG2HighPowerMotorShield24v14 motorLib;
 
-Control::Control() {
-    // // Pin numbers for encoders
-    // /// TODO: set encoder pin IO!
-    // int topEncoder = 0; 
-    // int bottomEncoder = 1;
-
-    // // Initialize encoder objects
-    // Encoder encoders[2] = {Encoder(topEncoder), Encoder(bottomEncoder)};
-}
+Control::Control() {}
 
 void Control::run(float currPos, float nextPos, int motor) {
-    // float currentPos = encoders[motor].getPosition();
     float diff = nextPos - currPos;
-    // Serial.print("Next pos: ");
-    // Serial.println(nextPos);
 
     if (!isInit){
         motorLib.init();
@@ -39,31 +30,25 @@ void Control::run(float currPos, float nextPos, int motor) {
         isInit = true;
     }
     
-
     int speed = diff*(float)P_COEFF;
-    // if (closing)
-    //     int speed = speed - OFFSET;
-    // }
 
-    //Serial.print("Speed: ");
-    
-    if (motor == TOP_MOTOR) {
-        //Serial.println(speed);
-        
-        motorLib.setM1Speed(speed);
+    if (speed > MAX_SPEED) {
+        cappedSpeed = MAX_SPEED - 1;
+    } 
+    else if (speed < MIN_SPEED) {
+        cappedSpeed = MIN_SPEED + 1;
     }
     else {
-        //Serial.println(speed);
-        motorLib.setM2Speed(speed);
+        cappedSpeed = speed;
     }
-}
 
-// OBSOLETE: decrease motor output if motor driver detects fault
-// void driveMotor(int rawSpeed) {
-    // if (!motorLib.getM1Fault && !motorLib.getM2Fault) {
-    //     int speed = rawSpeed;
-    // }
-    // else  {
-    //     int speed = rawSpeed/2;
-    // }
-// }
+    flippedSpeed = cappedSpeed*(-1);
+    
+    if (motor == TOP_MOTOR) {
+        motorLib.setM1Speed(flippedSpeed);
+    }
+    else {
+        motorLib.setM2Speed(flippedSpeed);
+    }
+
+}
