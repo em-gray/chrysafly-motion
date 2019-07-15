@@ -1,9 +1,5 @@
-//#ifndef ENCODER_H
+#ifndef ENCODER_H
 #define ENCODER_H
-
-static const int buffer = 2;
-// should really be using a circular buffere here instead of an array 
-// but we don't got time for that
 
 struct Position {
     int positionAngular; // from 0 to 4095 for 12 bit encoder
@@ -13,7 +9,7 @@ struct Position {
 
 class Encoder{
     private:
-        Position position[buffer]; 
+        Position position[2]; 
         Position maxPos;
         Position minPos;
         int pin;
@@ -27,12 +23,8 @@ class Encoder{
         void update();
         void setMax();
         void setMin();
-
-        float getVelocity();
-        float getPosition();
-
+        
         float getVelocity();
         float getPosition();
 };
-
-//#endif
+#endif

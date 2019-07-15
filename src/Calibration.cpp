@@ -2,7 +2,7 @@
 #include <Encoder.h>
 #include <Calibration.h>
 
-// Encoder constructor
+// Calibration constructor
 Calibration::Calibration() {
 
     // 3-bit addresses for command buttons in multiplexer
