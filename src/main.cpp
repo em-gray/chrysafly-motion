@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
 #include <Encoder.h>
-#include <Calibration.h>
 #include <Control.h>
 #include <SigmoidPath.h>
 #include <LinePath.h>
@@ -43,19 +42,26 @@ int i;
 long time;
 long timeRef;
 long timeAbs;
-int period;
+float period;
 float pos[2];
 float nextPos[] = {0,0,0,0};
 int calibrateMotor;
 boolean calibrating;
-boolean wasCalibrating;
+boolean wasCalibrating = true;
 
-float allMin[] = {0, 0, 0, 0};
-float allMax[] = {0, 0, 0, 0};
+float maxPosA;
+float minPosA;
+
+float maxPosB;
+float minPosB;
+
+// TODO: CHANGE THIS BACK TO ZEROES
+float allMin[] = {2, 0, 1, 3};
+float allMax[] = {8, 30, 6, 9};
 
 Encoder A;
 Encoder B;
-Calibration calibration;
+//Calibration calibration;
 LinePath linePath;
 Control motorControl;
 SigmoidPath sigmoidPath;
@@ -63,10 +69,69 @@ SigmoidPath sigmoidPath;
 // Initialize 24v14 as our shield version
 DualG2HighPowerMotorShield24v14 md;
 
-//-----------------------------------------------------------------------------------
-
+//----------------------------------------------------------------------------------------
+int muxRead(int A, int B, int C) {
+  digitalWrite(13, C);
+  digitalWrite(11, B);
+  digitalWrite(5, A);
+  //delay(100);
+  return digitalRead(3);
+}
+bool readCalibSwitch(){
+  return muxRead(0,0,0);
+}
+bool readMotorSwitch(){
+  return muxRead(0,1,0);
+}
+bool readArduinoSwitch(){
+  return muxRead(0,0,1);
+}
+bool readOpenButton(){
+  return muxRead(0,1,1);
+}
+bool readCloseButton(){
+  return muxRead(1,0,0);
+}
+bool readSetMaxButton(){
+  return muxRead(1,0,1);
+}
+bool readSetMinButton(){
+  return muxRead(1,1,0);
+}
+void setMax(int motor){
+  if(motor == 0){
+    maxPosA = A.getPosition();
+  }
+  if(motor == 1){
+    maxPosB = B.getPosition();
+  }
+}
+void setMin(int motor){
+  if(motor == 0){
+    minPosA = A.getPosition();
+  }
+  if(motor == 1){
+    minPosB = B.getPosition();
+  }
+}
+float getMin(int motor){
+  if(motor == 0){
+    return minPosA;
+  }
+  else { // if motor == 1
+    return minPosB;
+  }
+}
+float getMax(int motor){
+  if(motor == 0){
+    return maxPosA;
+  }
+  else { // if motor == 1
+    return maxPosB;
+  }
+}
+//----------------------------------------------------------------------------------------
 void encoderUpdate() {
-
   A.update();
   B.update();
 
@@ -82,6 +147,10 @@ void dataInit() {
   encoderUpdate();
   pos[0] = A.getPosition();
   pos[1]= B.getPosition();
+  // Serial.print("POSITIONS ");
+  // Serial.print(pos[0]);
+  // Serial.print(" ");
+  // Serial.println(pos[1]);
 
   // Read time each loop
   time = millis();
@@ -93,6 +162,9 @@ void calibratingMotor(int motor, boolean isClosing) {
   }
   else{
     nextPos[motor] = linePath.getOpenPath(pos[motor]);
+    if(nextPos[motor] > pos[motor]) {
+
+    }
   }
   motorControl.run(pos[motor], nextPos[motor], motor);
 }
@@ -100,14 +172,24 @@ void calibratingMotor(int motor, boolean isClosing) {
 void calibrate(){
     wasCalibrating = true;
 
-    calibrateMotor = calibration.readMotorSwitch();
+    calibrateMotor = readMotorSwitch();
 
-    if((ARDUINO_0 + !calibration.readArduinoSwitch()) % 2) {
+    // Serial.println(calibrateMotor);
+
+    if(calibrateMotor) {
+      digitalWrite(A4, HIGH);
+    }
+    else {
+      digitalWrite(A4, LOW);
+    }
+
+    if((ARDUINO_0 + !readArduinoSwitch()) % 2) {
+      digitalWrite(A2, HIGH);        
       // Calibrating 
-      if(calibration.readOpenButton()) {
+      if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
       }
-      else if(calibration.readCloseButton()) {
+      else if(readCloseButton()) {
         calibratingMotor(calibrateMotor, true);
       }
       else {
@@ -115,51 +197,64 @@ void calibrate(){
       }
     }
     else {
+      digitalWrite(A2, HIGH);        
       motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
     }
     motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
   
     // Check if set max or set min buttons are pressed (if both default is set max)
-    if (calibration.readSetMaxButton()) {
-      calibration.setMax(calibrateMotor);
-    } else if (calibration.readSetMinButton()) {
-      calibration.setMin(calibrateMotor);
+    if (readSetMaxButton()) {
+      setMax(calibrateMotor);
+    } else if (readSetMinButton()) {
+      setMin(calibrateMotor);
     }
 }     
 
 void postCalibrationSetup() {
   timeRef = time;
   wasCalibrating = false;
-  period = sigmoidPath.getPeriod();
-
+  
+  // TODO: IMPORTANT UNCCOMMENT THIS
+  /* 
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
-      allMin[i] = calibration.getMin(i);
-      allMax[i] = calibration.getMax(i);
+      allMin[i] = getMin(i);
+      allMax[i] = getMax(i);
     }
   }
   else {
     for(i = 2; i < 4; i++) {
-      allMin[i] = calibration.getMin(i-2);
-      allMax[i] = calibration.getMax(i-2);
+      allMin[i] = getMin(i-2);
+      allMax[i] = getMax(i-2);
     }
   }
+  */
   sigmoidPath.Init(allMin, allMax);
 }
 
 void normalRun() {
+  // Serial.print("Normal run loop");
   if(wasCalibrating) {
     postCalibrationSetup();
+    Serial.print("Post calibration setup complete");
   }
 
-  if (time > period) {
+  if (time - timeRef > period) {
     timeRef = time;
   }
 
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
-      nextPos[i] = sigmoidPath.getNextPos(i, time - timeRef);
-      motorControl.run(pos[i], nextPos[i], i) ;   
+      nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
+      int next = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
+      motorControl.run(pos[i], nextPos[i], i) ;
+      if (i == 0){
+        Serial.print("Target position: ");
+        Serial.println(next);
+        Serial.print("Time: ");
+        Serial.println(time - timeRef);
+      }
+
     }  
   }
   else {
@@ -170,7 +265,6 @@ void normalRun() {
   }
 }
 
-//----------------------------------------------------------------------------------------
 
 void setup() {
   //analogReference(EXTERNAL);       
@@ -184,21 +278,58 @@ void setup() {
 
   A.init(A_ENCODER_PIN);
   B.init(B_ENCODER_PIN);
-  // Initialize Calibration object
-  Calibration calibration;
- 
+
+  pinMode(3, INPUT);
+  pinMode(5, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(13, OUTPUT);
+  sigmoidPath.Init(allMin, allMax);
+  period = sigmoidPath.getPeriod();
 }
+
+
 
 void loop() {
   dataInit();
-  
+  time = millis();
+  //encoderUpdate();
+  // UNCOMMENT FOR CALIBRATION MENU DEBUG
+  // Serial.print(" ");
+  // Serial.print(muxRead(0,0,0)); //Calibrate mode on or off 
+  // Serial.print(" ");
+  // Serial.print(muxRead(0,0,1)); //Arduino Switch
+  // Serial.print(" ");
+  // Serial.print(muxRead(0,1,0)); //Motor Switch
+  // Serial.print(" ");
+  // Serial.print(muxRead(0,1,1)); //Forewards
+  // Serial.print(" ");
+  // Serial.print(muxRead(1,0,0)); //Backwards
+  // Serial.print(" ");
+  // Serial.print(muxRead(1,0,1)); //Setmax 
+  // Serial.print(" ");
+  // Serial.print(muxRead(1,1,0)); //Setmin
+  // Serial.println("");
+
+  if ((time - timeRef)/1000.0 > period) {
+    timeRef = time;
+  };
+
+  //Serial.print("Target: ");
+  sigmoidPath.getNextPos(3,((time - timeRef)/1000.0));
+  //Serial.print("Time: ");
+  //Serial.println((time - timeRef)/1000.0);
+  //Serial.print("Period: ");
+  //Serial.println(period);
+
+  //normalRun();
 
   // Check if calibration switch is on --> if on, run calibration protocol
-  if (!calibration.readCalibSwitch()) {
-    // Check if open or close buttons are pressed (if both, default it open)
-    normalRun();
-  } 
-  else {
-    calibrate();
-  }
+  // if (!readCalibSwitch()) {
+  //   // Check if open or close buttons are pressed (if both, default it open)
+  //   normalRun();
+  // } 
+  // else {
+  //   calibrate();
+  // }
+  delay(10);
 }
