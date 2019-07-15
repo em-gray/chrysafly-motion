@@ -38,6 +38,7 @@ void Encoder::update() {
 
     position[0].time = micros();
     position[0].positionAngular = pulseIn(pin, HIGH);
+    //Serial.println(position[0].positionAngular);
 
     // if (position[0].positionAngular > 1) {  // corresponding to MAE3 datasheet, this is not technically correct 
     //     position[0].positionAngular -= 1;    // but good enough for our purposes.
@@ -63,7 +64,7 @@ void Encoder::update() {
     }
 
     // *** Logging Info:
-    // Serial.print("Revolutions:");
-    // Serial.println( position[0].numRevolutions+(position[0].positionAngular/ (float)range));
+    //Serial.print("Revolutions:");
+    //Serial.println( position[0].numRevolutions+(position[0].positionAngular/ (float)range));
 }
 
