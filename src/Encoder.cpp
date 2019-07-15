@@ -4,6 +4,10 @@
 #define range 4096 // 12-bit system, also timeout speed 
 #define bandgap 2048
 
+static const int buffer = 2;
+// should really be using a circular buffere here instead of an array 
+// but we don't got time for that
+
 // Encoder constructor
 Encoder::Encoder(int input) {
     pin = input;

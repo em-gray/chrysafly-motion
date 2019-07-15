@@ -25,10 +25,8 @@ class Calibration{
         int muxS1;
         int muxS2;
 
-
-        // Encoder objects
-        Encoder top = Encoder::Encoder(top_encoder);
-        Encoder bottom = Encoder::Encoder(bot_encoder);
+        Encoder top;
+        Encoder bottom;
 
         // Pin for top/bottom toggle switch
         int toggle_pin;
