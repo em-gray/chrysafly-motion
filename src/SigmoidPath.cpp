@@ -7,14 +7,13 @@ float midpointPause = 5.0;
 float totalDuration = 157.0;
 
 float clamp(float x, float startPoint, float endPoint){
-    float output;
     if (x < startPoint){
-        output = startPoint;
-    }; 
-    if (x > endPoint){
-         output = endPoint;
-    };
-    return output;
+        return startPoint;
+    } else if (x > endPoint){
+        return endPoint;
+    } else {
+        return x;
+    }
 };
 
 float getPath(Motor motor, float time, float offset, bool closing){
@@ -22,17 +21,15 @@ float getPath(Motor motor, float time, float offset, bool closing){
     {
         float pos = clamp((time - (offset * cascadeOffset)) / sigmoidLength, 0, 1);
         // Evaluate Hermite interpolation poluynomial, scale according to max
-        Serial.print("TIME IN:");
-        int input = (time - (offset * cascadeOffset)) / sigmoidLength;
-        Serial.println(input);
-        Serial.print("Position: ");
-        Serial.println(pos);
-        return motor.maxPos - ((motor.maxPos - motor.minPos) * (pos * pos * ((3.0 - 2.0) * pos)));
+        // Serial.print("Position: ");
+        // Serial.println(pos);
+        return motor.maxPos - ((motor.maxPos - motor.minPos) * (pos * pos * ((3.0 - (2.0 * pos)))));
+        
         }
     else 
     {
         float pos = clamp((-1.0 * ((time - (totalDuration / 2.0) - sigmoidLength - (offset * cascadeOffset)))) / sigmoidLength, 0, 1);
-        return motor.maxPos - ((motor.maxPos - motor.minPos) * (pos * pos * ((3.0 - 2.0) * pos)));
+        return motor.maxPos - ((motor.maxPos - motor.minPos) * (pos * pos * ((3.0 - (2.0 * pos)))));
     }
 };
     

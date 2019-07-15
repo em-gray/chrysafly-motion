@@ -303,6 +303,18 @@ void loop() {
     timeRef = time;
   };
 
+<<<<<<< HEAD
+=======
+  Serial.print("Target: ");
+  Serial.println(sigmoidPath.getNextPos(3,((time - timeRef)/1000.0)));
+  Serial.print("Time: ");
+  Serial.println((time - timeRef)/1000.0);
+  Serial.print("Period: ");
+  Serial.println(period);
+
+  //normalRun();
+
+>>>>>>> f588f3177936156c6f0bb63ff9ae7c6d6316997a
   // Check if calibration switch is on --> if on, run calibration protocol
   if (!readCalibSwitch()) {
     // Check if open or close buttons are pressed (if both, default it open)
