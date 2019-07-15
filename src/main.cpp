@@ -42,6 +42,8 @@ int i;
 
 long time;
 long timeRef;
+long timeAbs;
+int period;
 float pos[2];
 float nextPos[] = {0,0,0,0};
 int calibrateMotor;
@@ -56,7 +58,7 @@ Encoder B(B_ENCODER_PIN);
 Calibration calibration;
 LinePath linePath;
 Control motorControl;
-SigmoidPath sigmoidPath(allMin, allMax);
+SigmoidPath sigmoidPath;
 
 // Initialize 24v14 as our shield version
 DualG2HighPowerMotorShield24v14 md;
@@ -125,24 +127,44 @@ void calibrate(){
     }
 }     
 
-void normalRun() {
-  if(wasCalibrating) {
-    timeRef = time;
-    wasCalibrating = false;
-  }
+void postCalibrationSetup() {
+  timeRef = time;
+  wasCalibrating = false;
+  period = sigmoidPath.getPeriod();
 
-  sigmoidPath.getPeriod
-
-  // TODO: add check here for whether timeFlag been reached --> overwrite "timeRef"
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
-      nextPos[i] = sigmoidPath.getNextPos(i, time);
+      allMin[i] = calibration.getMin(i);
+      allMax[i] = calibration.getMax(i);
+    }
+  }
+  else {
+    for(i = 2; i < 4; i++) {
+      allMin[i] = calibration.getMin(i-2);
+      allMax[i] = calibration.getMax(i-2);
+    }
+  }
+  sigmoidPath.init(allMin, allMax);
+}
+
+void normalRun() {
+  if(wasCalibrating) {
+    postCalibrationSetup();
+  }
+
+  if (time > period) {
+    timeRef = time;
+  }
+
+  if(ARDUINO_0) {
+    for(i = 0; i < 2; i++) {
+      nextPos[i] = sigmoidPath.getNextPos(i, time - timeRef);
       motorControl.run(pos[i], nextPos[i], i) ;   
     }  
   }
   else {
       for(i = 2; i < 4; i++) {
-      nextPos[i] = sigmoidPath.getNextPos(i, time);
+      nextPos[i] = sigmoidPath.getNextPos(i, time - timeRef);
       motorControl.run(pos[i-2], nextPos[i], i) ;   
     } 
   }
@@ -166,28 +188,10 @@ void setup(float pos[2], long time) {
 
 void loop() {
   dataInit();
-
-  }
+  
 
   // Check if calibration switch is on --> if on, run calibration protocol
   if (!calibration.readCalibSwitch()) {
-
-    if(wasCalibrating) {
-      if(ARDUINO_0) {
-        for(i = 0; i < 2; i++) {
-          allMin[i] = calibration.getMin(i);
-          allMax[i] = calibration.getMax(i);
-        }
-      }
-      else {
-        for(i = 2; i < 4; i++) {
-          allMin[i] = calibration.getMin(i);
-          allMax[i] = calibration.getMax(i);
-        }
-      }
-      SigmoidPath sigmoidPath(allMin, allMax);
-    }
-
     // Check if open or close buttons are pressed (if both, default it open)
     normalRun();
   } 
