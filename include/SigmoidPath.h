@@ -9,17 +9,10 @@ struct Motor {
 
 class SigmoidPath{
     private:
-        int totalDuration;
-        int cascadeOffset;
-        int sigmoidLength;
-        int midpointPause;
-    
         Motor m0;
         Motor m1;
         Motor m2;
         Motor m3;
-
-        float clamp(float x, float startPoint, int endPoint);
 
     public:
         SigmoidPath();
@@ -27,6 +20,7 @@ class SigmoidPath{
         // returns desired position givne time
         float getNextPos(int motor, int time);
         int getPeriod();
+        float getPath(Motor motor, int time, int offset, bool closing);
         
 };
 
