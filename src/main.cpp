@@ -144,7 +144,7 @@ void postCalibrationSetup() {
       allMax[i] = calibration.getMax(i-2);
     }
   }
-  sigmoidPath.init(allMin, allMax);
+  sigmoidPath.Init(allMin, allMax);
 }
 
 void normalRun() {
