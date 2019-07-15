@@ -1,9 +1,14 @@
 #include <Arduino.h>
 #include <DualG2HighPowerMotorShield.h>
-#include "Encoder.h"
+#include <Encoder.h>
 #include <Calibration.h>
+#include <Control.h>
+#include <SigmoidPath.h>
+#include <LinePath.h>
 #include <Wire.h>
-#include<SigmoidPath.h>
+
+#define ARDUINO_0 true
+//#define ARDUINO_1 true
 
 // Wing segment reference:
 //     _.._        _.._
@@ -19,83 +24,152 @@
 // - bring wings out to max, counting encoder rotations. Save num rotations as max.
 
 // Code for Master-duino
-#define motor_A 9 // some pwm pin (from motor driver)
-#define motor_B 10 // some pwm pin (from motor driver)
+#define A_MOTOR_PIN 9 // some pwm pin (from motor driver)
+#define B_MOTOR_PIN 10 // some pwm pin (from motor driver)
 
-#define encoder_A A2 // some analog in pin
-#define encoder_B A3 // some analog in pin
+#define A_ENCODER_PIN A2 // some analog in pin
+#define B_ENCODER_PIN A3 // some analog in pin
 
-#define READ_RATE 10 //miliseconds 
+//MOTOR IDENTIFIERS
+#define MOTOR_A 0; // top motor
+#define MOTOR_B 1; // bottom motor
 
-int currentSpeed = 300;                            // speed (Set Point)
-int targetSpeed = 0;                              // speed (actual value)
-long previousUpdate = millis();
+// #define READ_RATE 10 //miliseconds 
+
+// VARIABLE INITIALIZATIONS
+int i;
+
+long time;
+long timeRef;
+float pos[2];
+float nextPos[] = {0,0,0,0};
+boolean calibrating;
+boolean wasCalibrating;
 
 Encoder A(encoder_A);
 Encoder B(encoder_B);
 Calibration calibration;
 
-// Initialize 24v14 as ouçr shield version
+Encoder A(A_ENCODER_PIN);
+Encoder B(B_ENCODER_PIN);
+Calibration calibration;
+SigmoidPath sigmoidPath;
+LinePath linePath;
+Control motorControl;
+
+// Initialize 24v14 as our shield version
 DualG2HighPowerMotorShield24v14 md;
 
+//-----------------------------------------------------------------------------------
+
 void encoderUpdate() {
-  if (millis() - previousUpdate >= READ_RATE ) {
-    previousUpdate = millis();  // or += READ_RATE...
-    A.update();
-    //B.update();
+
+  A.update();
+  B.update();
+
+  // if (millis() - previousUpdate >= READ_RATE ) {
+  //   previousUpdate = millis();  // or += READ_RATE...
+  //   A.update();
+  //   B.update();
+  // }
+}
+
+void dataInit() {
+  // Read position each loop
+  encoderUpdate();
+  pos[0] = A.getPosition();
+  pos[1]= B.getPosition();
+
+  // Read time each loop
+  time = millis();
+}
+
+void calibratingMotor(int motor, boolean isClosing) {
+  if(isClosing) {
+    nextPos[motor] = linePath.getClosePath(pos[motor]);
   }
+  else{
+    nextPos[motor] = linePath.getOpenPath(pos[motor]);
+  }
+  motorControl.run(pos[motor], nextPos[motor], motor);
 }
 
 void calibrate(){
-  // This is where the menu state machine and its navigation is going to go.
-  // This will set minSweep and maxSweep for each wing level
+    wasCalibrating = true;
 
-}          
+    calibrateMotor = calibration.readMotorSwitch();
 
-int getPid(int targetValue, int currentValue)   {           
-  // will return target velocity given current velocity, to be sent to motor driver
-  return 0;
+    if((ARDUINO_0 + !calibration.readArduinoSwitch()) % 2) {
+      // Calibrating 
+      if(calibration.readOpenButton()) {
+        calibratingMotor(calibrateMotor, false);
+      }
+      else if(calibration.readCloseButton()) {
+        calibratingMotor(calibrateMotor, true);
+      }
+      else {
+        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor]);
+      }
+    }
+    else {
+      motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+    }
+    motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
+  
+    // Check if set max or set min buttons are pressed (if both default is set max)
+    if (calibration.readSetMaxButton()) {
+      calibration.setMax(calibrateMotor);
+    } else if (calibration.readSetMinButton()) {
+      calibration.setMin(calibrateMotor);
+    }
+}     
+
+void normalRun() {
+  if(wasCalibrating) {
+    timeRef = time;
+    wasCalibrating = false;
+  }
+
+  // TODO: add check here for whether timeFlag been reached --> overwrite "timeRef"
+  if(ARDUINO_0) {
+    for(i = 0; i < 2; i++) {
+      nextPos[i] = sigmoidPath.getNextPos(i, time);
+      motorControl.run(pos[i], nextPos[i], i) ;   
+    }  
+  }
+  else {
+      for(i = 2; i < 4; i++) {
+      nextPos[i] = sigmoidPath.getNextPos(i, time);
+      motorControl.run(pos[i-2], nextPos[i], i) ;   
+    } 
+  }
 }
 
-void setup() {
+//----------------------------------------------------------------------------------------
+
+void setup(float pos[2], long time) {
   //analogReference(EXTERNAL);       
   Serial.begin(9600);                   
   Serial.println("Online");
-  pinMode(motor_A, OUTPUT);
-  pinMode(motor_B, OUTPUT);
-  pinMode(encoder_A, INPUT); 
-  pinMode(encoder_B, INPUT);
+  pinMode(A_MOTOR_PIN, OUTPUT);
+  pinMode(B_MOTOR_PIN, OUTPUT);
+  pinMode(A_ENCODER_PIN, INPUT); 
+  pinMode(B_ENCODER_PIN, INPUT);
   md.init();
-
-  // init both encoders
 
   // Initialize Calibration object
   Calibration calibration = Calibration();
-
 }
 
 void loop() {
-  encoderUpdate();
+  dataInit();
 
-  // Check if calibration switch is on
-  // If so, run calibration protocall
-  if (calibration.readCalibSwitch()) {
+  // Check if calibration switch is on --> if on, run calibration protocol
+  if (!calibration.readCalibSwitch()) {
     // Check if open or close buttons are pressed (if both, default it open)
-    if (calibration.readOpenButton()) {
-        
-    } else if (calibration.readCloseButton()) {
-      
-    }
-
-    // Check if set max or set min buttons are pressed (if both default is set max)
-    if (calibration.readSetMaxButton()) {
-      calibration.setMax();
-    } else if (calibration.readSetMinButton()) {
-      calibration.setMin();
-    }
-
-    //Exampled of getting motor max/min vals
-    calibration.getMax(1); // Max position of bottom motor
-    calibration.getMin(0); // Min position of top motor
+    normalRun();
   } 
+  else {
+    calibrate();
+  }
 }

@@ -23,7 +23,7 @@ class Encoder{
         void update();
         void setMax();
         void setMin();
-
+        
         float getVelocity();
         float getPosition();
 };
