@@ -163,7 +163,6 @@ void calibratingMotor(int motor, boolean isClosing) {
   else{
     nextPos[motor] = linePath.getOpenPath(pos[motor]);
     if(nextPos[motor] > pos[motor]) {
-
     }
   }
   motorControl.run(pos[motor], nextPos[motor], motor);
@@ -174,17 +173,7 @@ void calibrate(){
 
     calibrateMotor = readMotorSwitch();
 
-    // Serial.println(calibrateMotor);
-
-    if(calibrateMotor) {
-      digitalWrite(A4, HIGH);
-    }
-    else {
-      digitalWrite(A4, LOW);
-    }
-
     if((ARDUINO_0 + !readArduinoSwitch()) % 2) {
-      digitalWrite(A2, HIGH);        
       // Calibrating 
       if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
@@ -197,7 +186,6 @@ void calibrate(){
       }
     }
     else {
-      digitalWrite(A2, HIGH);        
       motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
     }
     motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
@@ -205,17 +193,18 @@ void calibrate(){
     // Check if set max or set min buttons are pressed (if both default is set max)
     if (readSetMaxButton()) {
       setMax(calibrateMotor);
+      Serial.println(maxPosA);
+      Serial.println(maxPosB);
     } else if (readSetMinButton()) {
       setMin(calibrateMotor);
     }
+
 }     
 
 void postCalibrationSetup() {
   timeRef = time;
   wasCalibrating = false;
   
-  // TODO: IMPORTANT UNCCOMMENT THIS
-  /* 
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
       allMin[i] = getMin(i);
@@ -228,7 +217,7 @@ void postCalibrationSetup() {
       allMax[i] = getMax(i-2);
     }
   }
-  */
+
   sigmoidPath.Init(allMin, allMax);
 }
 
@@ -314,22 +303,13 @@ void loop() {
     timeRef = time;
   };
 
-  Serial.print("Target: ");
-  Serial.println(sigmoidPath.getNextPos(3,((time - timeRef)/1000.0)));
-  Serial.print("Time: ");
-  Serial.println((time - timeRef)/1000.0);
-  Serial.print("Period: ");
-  Serial.println(period);
-
-  //normalRun();
-
   // Check if calibration switch is on --> if on, run calibration protocol
-  // if (!readCalibSwitch()) {
-  //   // Check if open or close buttons are pressed (if both, default it open)
-  //   normalRun();
-  // } 
-  // else {
-  //   calibrate();
-  // }
-  delay(10);
+  if (!readCalibSwitch()) {
+    // Check if open or close buttons are pressed (if both, default it open)
+    normalRun();
+  } 
+  else {
+
+    calibrate();
+  }
 }
