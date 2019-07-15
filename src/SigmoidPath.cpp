@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include "SigmoidPath.h"
 
-float cascadeOffset = 7.0;
-float sigmoidLength = 55.0;
-float midpointPause = 5.0;
-float totalDuration = 157.0;
+float cascade_offset = 7.0;
+float sigmoid_length = 55.0;
+float midpoint_pause = 5.0;
+float total_duration = sigmoid_length * 2 + 6 * cascade_offset + midpoint_pause;
 
 float clamp(float x, float startPoint, float endPoint){
     if (x < startPoint){
@@ -19,7 +19,7 @@ float clamp(float x, float startPoint, float endPoint){
 float getPath(Motor motor, float time, float offset, bool closing){
     if (closing)
     {
-        float pos = clamp((time - (offset * cascadeOffset)) / sigmoidLength, 0, 1);
+        float pos = clamp((time - (offset * cascade_offset)) / sigmoid_length, 0, 1);
         // Evaluate Hermite interpolation poluynomial, scale according to max
         // Serial.print("Position: ");
         // Serial.println(pos);
@@ -28,14 +28,14 @@ float getPath(Motor motor, float time, float offset, bool closing){
         }
     else 
     {
-        float pos = clamp((-1.0 * ((time - (totalDuration / 2.0) - sigmoidLength - (offset * cascadeOffset)))) / sigmoidLength, 0, 1);
+        float pos = clamp((-1.0 * ((time - (total_duration / 2.0) - sigmoid_length - (offset * cascade_offset)))) / sigmoid_length, 0, 1);
         return motor.maxPos - ((motor.maxPos - motor.minPos) * (pos * pos * ((3.0 - (2.0 * pos)))));
     }
 };
     
 float SigmoidPath::getNextPos(int motor, float time){
     float pos;
-    if(time < totalDuration / 2.0){
+    if(time < total_duration / 2.0){
         // Generate opening paths based on motor params
         switch(motor){
             case 0:
@@ -89,9 +89,12 @@ void SigmoidPath::Init(float minPos[], float maxPos[]){
     m3.maxPos = maxPos[3];
     m3.minPos = minPos[3];
 
-    totalDuration = sigmoidLength * 2.0 + 6.0 * cascadeOffset + midpointPause;
+    cascadeOffset = cascade_offset;
+    sigmoidLength = sigmoid_length;
+    midpointPause = midpoint_pause;
+    totalDuration = sigmoid_length * 2.0 + 6.0 * cascade_offset + midpoint_pause;
 };
 
 float SigmoidPath::getPeriod(){
-    return totalDuration;
+    return sigmoid_length * 2 + 6 * cascade_offset + midpoint_pause;
 };
