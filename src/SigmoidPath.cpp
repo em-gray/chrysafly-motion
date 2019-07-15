@@ -69,7 +69,7 @@ float SigmoidPath::getNextPos(int motor, int time){
 };
 
 SigmoidPath::SigmoidPath(){
-}
+};
 
 void SigmoidPath::Init(float minPos[], float maxPos[]){
     m0.maxPos = maxPos[0];
@@ -83,5 +83,5 @@ void SigmoidPath::Init(float minPos[], float maxPos[]){
     
     m3.maxPos = maxPos[3];
     m3.minPos = minPos[3];
-}
+};
 

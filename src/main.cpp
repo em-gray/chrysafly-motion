@@ -156,7 +156,7 @@ void setup(float pos[2], long time) {
   md.init();
 
   // Initialize Calibration object
-  Calibration calibration = Calibration();
+  Calibration calibration;
 }
 
 void loop() {
