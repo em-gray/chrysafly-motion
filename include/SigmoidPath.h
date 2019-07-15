@@ -9,10 +9,10 @@ struct Motor {
 
 class SigmoidPath{
     private:
-        float cascadeOffset = 7.0;
-        float sigmoidLength = 55.0;
-        float midpointPause = 5.0;
-        float totalDuration = 157.0;
+        float cascadeOffset;
+        float sigmoidLength;
+        float midpointPause;
+        float totalDuration;
         Motor m0;
         Motor m1;
         Motor m2;
