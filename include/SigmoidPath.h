@@ -20,8 +20,6 @@ class SigmoidPath{
         // returns desired position givne time
         float getNextPos(int motor, int time);
         int getPeriod();
-        float getPath(Motor motor, int time, int offset, bool closing);
-        
 };
 
 #endif

@@ -1,22 +1,24 @@
 #ifndef CALIBRATION_H
 #define CALIBRATION_H
 #include <Encoder.h>
+#include <Arduino.h>
+
 
 class Calibration{
     private: 
         // Max and min positions of wing in number of rotations
         // Top motor is 0, bottom is 1
-        float maxPos[];
-        float minPos[];
+        float maxPos[2];
+        float minPos[2];
 
-        // 3-bit addresses for multiplexer
-        bool calibAddr[];
-        bool arduinoAddr[];
-        bool motorAddr[];
-        bool openAddr[];
-        bool closeAddr[];
-        bool maxAddr[];
-        bool minAddr[];
+        // 3-bit addresses for command buttons in multiplexer
+        bool calibAddr[3] = {0, 0, 0};
+        bool arduinoAddr[3] = {0, 0, 1};
+        bool motorAddr[3] = {0, 1, 0};
+        bool openAddr[3] = {0, 1, 1};
+        bool closeAddr[3] = {1, 0, 0};
+        bool maxAddr[3] = {1, 0, 1};
+        bool minAddr[3] = {1, 1, 0};
  
 
         // Pin numbers for encoders and multiplexer
@@ -36,6 +38,7 @@ class Calibration{
     
     public:
         Calibration();
+        void Init();
 
         // Methods for reading buttons through multiplexer
         bool readCalibSwitch();

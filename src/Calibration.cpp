@@ -1,18 +1,38 @@
 #include <Arduino.h>
 #include <Encoder.h>
-#include <Calibration.h>
+#include <Calibration.h>    
 
 // Calibration constructor
-Calibration::Calibration() {
+Calibration::Calibration() {};
 
-    // 3-bit addresses for command buttons in multiplexer
-    const bool calibAddr[] = {0, 0, 0};
-    const bool arduinoAddr[] = {0, 0, 1};
-    const bool motorAddr[] = {0, 1, 0}; // 0 is top motor, 1 is bottom
-    const bool openAddr[] = {0, 1, 1};
-    const bool closeAddr[] = {1, 0, 0};
-    const bool maxAddr[] = {1, 0, 1};
-    const bool minAddr[] = {1, 1, 0};
+void Calibration::Init() {
+     // Pin numbers for encoders and multiplexer
+     // These could be arguments for Init
+    top_encoder = 3; // TO BE CHANGED
+    bot_encoder = 5;
+    sigOut = 0;
+    sigC = 1;
+    sigB = A2;
+    sigA = A3;
+
+    // Initialize multiplexer pins
+    pinMode(sigOut, OUTPUT);
+    pinMode(sigC, INPUT); // These pins control the address connected to output
+    pinMode(sigB, INPUT);
+    pinMode(sigA, INPUT);
+
+    // Initialize encoder objects
+    top.init(top_encoder);
+    bottom.init(bot_encoder);
+
+     // Stores max and min positions of motors in number of rotations
+    // Top motor is index 0, bottom is 1
+    // To start, store as 0.0
+    maxPos[0] = 0.0;
+    maxPos[1] = 0.0;
+
+    minPos[0] = 0.0;
+    minPos[1] = 0.0;
     
     // const int multiplexor[9][3] = {
     //     {0, 0, 0},
@@ -32,31 +52,8 @@ Calibration::Calibration() {
     // 6 - set max button
     // 7 - set min button
     // */
-      
-    // Pin numbers for encoders and multiplexer
-    int top_encoder = 3; // TO BE CHANGED
-    int bot_encoder = 5;
-    int sigOut = 0;
-    int sigC = 1;
-    int sigB = A2;
-    int sigA = A3;
-
-    // Initialize multiplexer pins
-    pinMode(sigOut, OUTPUT);
-    pinMode(sigC, INPUT); // These pins control the address connected to output
-    pinMode(sigB, INPUT);
-    pinMode(sigA, INPUT);
-
-    // Initialize encoder objects
-    Encoder top(top_encoder);
-    Encoder bottom(bot_encoder);
-
-    // Stores max and min positions of motors in number of rotations
-    // Top motor is index 0, bottom is 1
-    // Sets max and min to 0 at the start
-    float maxPos[2] = {0.0, 0.0};
-    float minPos[2] = {0.0, 0.0};
-}
+  
+};
 
 // Reads multiplexer address connected to calibration mode switch
 // Returns true if in calibration mode, otherwise false
@@ -67,7 +64,7 @@ bool Calibration::readCalibSwitch() {
     digitalWrite(sigA, calibAddr[2]);
 
     // Read multiplexer output
-    return digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 // Reads multiplexer address connected to motor select switch
@@ -79,7 +76,7 @@ bool Calibration::readMotorSwitch() {
     digitalWrite(sigA, motorAddr[2]);
 
     // Read multiplexer output
-    return digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 bool Calibration::readArduinoSwitch() {
@@ -87,7 +84,7 @@ bool Calibration::readArduinoSwitch() {
     digitalWrite(sigB, arduinoAddr[1]);
     digitalWrite(sigA, arduinoAddr[2]);
 
-    return digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 // Reads multiplexer address connected to open command button
@@ -99,7 +96,7 @@ bool Calibration::readOpenButton() {
     digitalWrite(sigA, openAddr[2]);
 
     // Read multiplexer output
-    return digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 // Reads multiplexer address connected to close command button
@@ -111,7 +108,7 @@ bool Calibration::readCloseButton() {
     digitalWrite(sigA, closeAddr[2]);
 
     // Read multiplexer output
-    digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 // Reads multiplexer address connected to set max command button
@@ -123,7 +120,7 @@ bool Calibration::readSetMaxButton() {
     digitalWrite(sigA, maxAddr[2]);
 
     // Read multiplexer output
-    digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 // Reads multiplexer address connected to set min command button
@@ -135,7 +132,7 @@ bool Calibration::readSetMinButton() {
     digitalWrite(sigA, minAddr[2]);
 
     // Read multiplexer output
-    digitalRead(sigOut);
+    return (bool) digitalRead(sigOut);
 }
 
 // Sets current position as max position of motor

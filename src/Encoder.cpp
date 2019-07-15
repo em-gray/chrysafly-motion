@@ -8,8 +8,10 @@ static const int buffer = 2;
 // should really be using a circular buffere here instead of an array 
 // but we don't got time for that
 
+Encoder::Encoder(){};
+
 // Encoder constructor
-Encoder::Encoder(int input) {
+void Encoder::init(int input) {
     pin = input;
     for (int i = 0; i < buffer; i++) {
         position[i].time=micros();
