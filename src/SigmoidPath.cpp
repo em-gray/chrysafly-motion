@@ -84,4 +84,3 @@ void SigmoidPath::Init(float minPos[], float maxPos[]){
     m3.maxPos = maxPos[3];
     m3.minPos = minPos[3];
 }
-
