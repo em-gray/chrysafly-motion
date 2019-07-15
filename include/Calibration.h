@@ -11,20 +11,21 @@ class Calibration{
 
         // 3-bit addresses for multiplexer
         bool calibAddr[];
+        bool arduinoAddr[];
         bool motorAddr[];
-        bool maxAddr[];
-        bool minAddr[];
         bool openAddr[];
         bool closeAddr[];
+        bool maxAddr[];
+        bool minAddr[];
+ 
 
         // Pin numbers for encoders and multiplexer
         int top_encoder;
         int bot_encoder;
-        int muxOut;
-        int muxS0;
-        int muxS1;
-        int muxS2;
-
+        int sigOut;
+        int sigC;
+        int sigB;
+        int sigA;
 
         // Encoder objects
         Encoder top = Encoder::Encoder(top_encoder);
@@ -39,14 +40,15 @@ class Calibration{
         // Methods for reading buttons through multiplexer
         bool readCalibSwitch();
         bool readMotorSwitch();
+        bool readArduinoSwitch();
         bool readOpenButton();
         bool readCloseButton();
         bool readSetMaxButton();
         bool readSetMinButton();
 
         // Methods for setting max and min positions
-        void setMax();
-        void setMin();
+        void setMax(int motor);
+        void setMin(int motor);
 
         // Methods for getting max and min positions
         float getMax(int motor);

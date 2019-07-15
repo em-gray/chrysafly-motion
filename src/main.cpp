@@ -6,6 +6,9 @@
 #include <SigmoidPath.h>
 #include <LinePath.h>
 
+#define ARDUINO_0 true
+//#define ARDUINO_1 true
+
 // Wing segment reference:
 //     _.._        _.._
 //   :' A  \     /  A `;  
@@ -38,14 +41,17 @@ int i;
 long time;
 long timeRef;
 float pos[2];
-float nextPos[2];
+float nextPos[] = {0,0,0,0};
 boolean calibrating;
 boolean wasCalibrating;
+
+int calibrateMotor;
 
 Encoder A(A_ENCODER_PIN);
 Encoder B(B_ENCODER_PIN);
 Calibration calibration;
 SigmoidPath sigmoidPath;
+LinePath linePath;
 Control motorControl;
 
 // Initialize 24v14 as our shield version
@@ -75,26 +81,44 @@ void dataInit() {
   time = millis();
 }
 
+void calibratingMotor(int motor, boolean isClosing) {
+  if(isClosing) {
+    nextPos[motor] = linePath.getClosePath(pos[motor]);
+  }
+  else{
+    nextPos[motor] = linePath.getOpenPath(pos[motor]);
+  }
+  motorControl.run(pos[motor], nextPos[motor], motor);
+}
+
 void calibrate(){
     wasCalibrating = true;
 
-    // TODO: check which arduino and which motor -> will probably need to be input to the settings
-    if (calibration.readOpenButton()) {
-        
-    } else if (calibration.readCloseButton()) {
-      
-    }
+    calibrateMotor = calibration.readMotorSwitch();
 
+    if((ARDUINO_0 + !calibration.readArduinoSwitch()) % 2) {
+      // Calibrating 
+      if(calibration.readOpenButton()) {
+        calibratingMotor(calibrateMotor, false);
+      }
+      else if(calibration.readCloseButton()) {
+        calibratingMotor(calibrateMotor, true);
+      }
+      else {
+        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor]);
+      }
+    }
+    else {
+      motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+    }
+    motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
+  
     // Check if set max or set min buttons are pressed (if both default is set max)
     if (calibration.readSetMaxButton()) {
-      calibration.setMax();
+      calibration.setMax(calibrateMotor);
     } else if (calibration.readSetMinButton()) {
-      calibration.setMin();
+      calibration.setMin(calibrateMotor);
     }
-
-    //Examples of getting motor max/min vals
-    calibration.getMax(1); // Max position of bottom motor
-    calibration.getMin(0); // Min position of top motor
 }     
 
 void normalRun() {
@@ -104,11 +128,18 @@ void normalRun() {
   }
 
   // TODO: add check here for whether timeFlag been reached --> overwrite "timeRef"
-  
-  for(i = 0; i < 2; i++) {
-    nextPos[i] = sigmoidPath.getNextPos(i, time);
-    motorControl.run(pos[i], nextPos[i], i) ;   
-  }  
+  if(ARDUINO_0) {
+    for(i = 0; i < 2; i++) {
+      nextPos[i] = sigmoidPath.getNextPos(i, time);
+      motorControl.run(pos[i], nextPos[i], i) ;   
+    }  
+  }
+  else {
+      for(i = 2; i < 4; i++) {
+      nextPos[i] = sigmoidPath.getNextPos(i, time);
+      motorControl.run(pos[i-2], nextPos[i], i) ;   
+    } 
+  }
 }
 
 //----------------------------------------------------------------------------------------
