@@ -48,8 +48,8 @@ boolean calibrating;
 boolean wasCalibrating;
 int calibrateMotor;
 
-Encoder A(A_ENCODER_PIN);
-Encoder B(B_ENCODER_PIN);
+Encoder A;
+Encoder B;
 Calibration calibration;
 SigmoidPath sigmoidPath;
 LinePath linePath;
@@ -145,7 +145,7 @@ void normalRun() {
 
 //----------------------------------------------------------------------------------------
 
-void setup(float pos[2], long time) {
+void setup() {
   //analogReference(EXTERNAL);       
   Serial.begin(9600);                   
   Serial.println("Online");
@@ -155,8 +155,11 @@ void setup(float pos[2], long time) {
   pinMode(B_ENCODER_PIN, INPUT);
   md.init();
 
+  A.init(A_ENCODER_PIN);
+  B.init(B_ENCODER_PIN);
   // Initialize Calibration object
   Calibration calibration;
+ 
 }
 
 void loop() {

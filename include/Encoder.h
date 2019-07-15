@@ -17,8 +17,8 @@ class Encoder{
         void shift();
     
     public:
-        Encoder(int input);
         Encoder();
+        void init(int input);
 
         void update();
         void setMax();

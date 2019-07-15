@@ -22,8 +22,8 @@ void Calibration::Init() {
     pinMode(sigA, INPUT);
 
     // Initialize encoder objects
-    Encoder top(top_encoder);
-    Encoder bottom(bot_encoder);
+    top.init(top_encoder);
+    bottom.init(bot_encoder);
 
      // Stores max and min positions of motors in number of rotations
     // Top motor is index 0, bottom is 1
