@@ -24,6 +24,10 @@ float getPath(Motor motor, int time, int offset, bool closing){
     }
 };
 
+int SigmoidPath::getPeriod(){
+    return totalDuration;
+}
+
 SigmoidPath::SigmoidPath(float minPos[], float maxPos[]){
     m0.maxPos = maxPos[0];
     m0.minPos = minPos[0];
