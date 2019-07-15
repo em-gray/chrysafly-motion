@@ -11,12 +11,13 @@
 //#define ARDUINO_1 true
 
 // Wing segment reference:
+// Numbers are motors, letters refer to symmetric wing segents.
 //     _.._        _.._
-//   :' A  \     /  A `;  
-//   (  B   \(*)/   B  )
-//    \------(*)------/
-//     ) C  /(*)\  C (
-//     \ D /  ^  \ D /
+//   :' A  \  ,, /  A `;  
+//   (  B   \(0)/   B  )
+//    \------(1)------/
+//     ) C  /(2)\  C (
+//     \ D / (3) \ D /
 //      ^^^       ^^^
 
 // Notes on calibration protocol:
