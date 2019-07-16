@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "SigmoidPath.h"
 
-float cascade_offset = 2.0;
-float sigmoid_length = 17.0;
+float cascade_offset = 5.0;
+float sigmoid_length = 50.0;
 float midpoint_pause = 4.0;
 float total_duration = (sigmoid_length * 2.0) + (6.0 * cascade_offset) + midpoint_pause;
 
