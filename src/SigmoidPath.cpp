@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include "SigmoidPath.h"
 
-float cascade_offset = 7.0;
-float sigmoid_length = 55.0;
-float midpoint_pause = 5.0;
-float total_duration = (sigmoid_length * 2) + (6 * cascade_offset) + midpoint_pause;
+float cascade_offset = 1.0;
+float sigmoid_length = 20.0;
+float midpoint_pause = 3.0;
+float total_duration = (sigmoid_length * 2.0) + (6.0 * cascade_offset) + midpoint_pause;
 
 float clamp(float x, float startPoint, float endPoint){
     if (x < startPoint){

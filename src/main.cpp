@@ -56,8 +56,8 @@ float maxPosB;
 float minPosB;
 
 // TODO: CHANGE THIS BACK TO ZEROES
-float allMin[] = {2, 0, 1, 3};
-float allMax[] = {8, 30, 6, 9};
+float allMin[] = {2, 4, 1, 3};
+float allMax[] = {8, -4, 6, 9};
 
 Encoder A;
 Encoder B;
@@ -101,17 +101,25 @@ bool readSetMinButton(){
 void setMax(int motor){
   if(motor == 0){
     maxPosA = A.getPosition();
+    Serial.print("MAX:");
+    Serial.println(maxPosA);
   }
   if(motor == 1){
     maxPosB = B.getPosition();
+    Serial.print("MAX:");
+    Serial.println(maxPosB);
   }
 }
 void setMin(int motor){
   if(motor == 0){
     minPosA = A.getPosition();
+    Serial.print("MIN:");
+    Serial.println(minPosA);
   }
   if(motor == 1){
     minPosB = B.getPosition();
+    Serial.print("MIN:");
+    Serial.println(minPosB);
   }
 }
 float getMin(int motor){
@@ -169,6 +177,7 @@ void calibratingMotor(int motor, boolean isClosing) {
 }
 
 void calibrate(){
+  Serial.println("Calibrating");
     wasCalibrating = true;
 
     calibrateMotor = readMotorSwitch();
@@ -193,8 +202,6 @@ void calibrate(){
     // Check if set max or set min buttons are pressed (if both default is set max)
     if (readSetMaxButton()) {
       setMax(calibrateMotor);
-      Serial.println(maxPosA);
-      Serial.println(maxPosB);
     } else if (readSetMinButton()) {
       setMin(calibrateMotor);
     }
@@ -219,36 +226,39 @@ void postCalibrationSetup() {
   }
 
   sigmoidPath.Init(allMin, allMax);
+  // Serial.println(allMin[0]);
+  // Serial.println(allMin[1]);
+  // Serial.println(allMin[2]);
+  // Serial.println(allMin[3]);
+  // Serial.println(allMax[0]);
+  // Serial.println(allMax[1]);
+  // Serial.println(allMax[2]);
+  // Serial.println(allMax[3]);
+
 }
 
 void normalRun() {
-  // Serial.print("Normal run loop");
+
   if(wasCalibrating) {
     postCalibrationSetup();
     Serial.print("Post calibration setup complete");
   }
 
-  if (time - timeRef > period) {
+  if ((time - timeRef)/1000.0 > period) {
+    // Serial.print("Period: ");
+    // Serial.println(period);
     timeRef = time;
   }
 
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
       nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
-      int next = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
       motorControl.run(pos[i], nextPos[i], i) ;
-      if (i == 0){
-        Serial.print("Target position: ");
-        Serial.println(next);
-        Serial.print("Time: ");
-        Serial.println(time - timeRef);
-      }
-
     }  
   }
   else {
       for(i = 2; i < 4; i++) {
-      nextPos[i] = sigmoidPath.getNextPos(i, time - timeRef);
+      nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
       motorControl.run(pos[i-2], nextPos[i], i) ;   
     } 
   }
@@ -280,7 +290,6 @@ void setup() {
 
 void loop() {
   dataInit();
-  time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
   // Serial.print(" ");
