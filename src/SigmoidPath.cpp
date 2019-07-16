@@ -4,7 +4,7 @@
 float cascade_offset = 7.0;
 float sigmoid_length = 55.0;
 float midpoint_pause = 5.0;
-float total_duration = sigmoid_length * 2 + 6 * cascade_offset + midpoint_pause;
+float total_duration = (sigmoid_length * 2) + (6 * cascade_offset) + midpoint_pause;
 
 float clamp(float x, float startPoint, float endPoint){
     if (x < startPoint){
@@ -92,7 +92,7 @@ void SigmoidPath::Init(float minPos[], float maxPos[]){
     cascadeOffset = cascade_offset;
     sigmoidLength = sigmoid_length;
     midpointPause = midpoint_pause;
-    totalDuration = sigmoid_length * 2.0 + 6.0 * cascade_offset + midpoint_pause;
+    totalDuration = (sigmoid_length * 2.0) + (6.0 * cascade_offset) + (midpoint_pause);
 };
 
 float SigmoidPath::getPeriod(){
