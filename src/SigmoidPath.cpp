@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "SigmoidPath.h"
 
-float cascade_offset = 1.0;
-float sigmoid_length = 20.0;
-float midpoint_pause = 3.0;
+float cascade_offset = 2.0;
+float sigmoid_length = 17.0;
+float midpoint_pause = 4.0;
 float total_duration = (sigmoid_length * 2.0) + (6.0 * cascade_offset) + midpoint_pause;
 
 float clamp(float x, float startPoint, float endPoint){
@@ -96,5 +96,5 @@ void SigmoidPath::Init(float minPos[], float maxPos[]){
 };
 
 float SigmoidPath::getPeriod(){
-    return sigmoid_length * 2 + 6 * cascade_offset + midpoint_pause;
+    return totalDuration;
 };

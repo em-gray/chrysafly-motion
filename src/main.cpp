@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 true
+#define ARDUINO_0 1
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -40,8 +40,8 @@
 
 // VARIABLE INITIALIZATIONS
 int i;
-int time;
-int timeRef;
+unsigned long time;
+unsigned long timeRef;
 int timeAbs;
 bool resetArduino1;
 float period;
@@ -58,8 +58,8 @@ float maxPosB;
 float minPosB;
 
 // TODO: CHANGE THIS BACK TO ZEROES
-float allMin[] = {1, 1, 1, 1};
-float allMax[] = {15, 15, 15, 15};
+float allMin[] = {1.0, 1.0, 1.0, 1.0};
+float allMax[] = {5.0, 5.0, 5.0, 5.0};
 
 Encoder A;
 Encoder B;
@@ -161,6 +161,9 @@ void dataInit() {
 
   // Read time each loop
   time = millis();
+  if ((time - timeRef)/1000.0 > period){
+    timeRef = time;
+  }
 }
 
 void calibratingMotor(int motor, boolean isClosing) {
@@ -234,20 +237,13 @@ void normalRun() {
   }
 
   if ((time - timeRef)/1000.0 > period) {
-    timeRef = time;
+     timeRef = time;
   }
 
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
       nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
-      motorControl.run(pos[i], nextPos[i], i) ;
-      if (i == 0){
-        Serial.print("Target position: ");
-        Serial.println(next);
-        Serial.print("Time: ");
-        Serial.println((time - timeRef)/1000.0);
-      }
-
+      motorControl.run(pos[i], nextPos[i], i);
     }  
   }
   else {
@@ -286,13 +282,15 @@ void setup() {
   period = sigmoidPath.getPeriod();
     // Init reset value
   resetArduino1 = 0;
+  time = millis();
   
 }
 
 
 
 void loop() {
-  dataInit();
+  //dataInit();
+  time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
   // Serial.print(" ");
@@ -325,19 +323,35 @@ void loop() {
   } else { // ARDUINO_1
     int readSync = digitalRead(TIMER_SYNC);
     if(readSync != resetArduino1){
+      // TODO: double check communication
       timeRef = time;
       resetArduino1 = readSync;
     }
   };
 
+  Serial.print("Target: ");
+  Serial.print(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
 
-  //Check if calibration switch is on --> if on, run calibration protocol
-  if (!readFreezeSwitch()) {
-    // Check if open or close buttons are pressed (if both, default it open)
-    normalRun();
-  } 
-  else {
+  Serial.print("   Period: ");
+  Serial.print(period);
 
-    calibrate();
-  }
+  Serial.print("   Time: ");
+  Serial.print(time/1000.0);
+
+  Serial.print("   TimeRef: ");
+  Serial.println(timeRef/1000.0);
+
+
+
+
+
+  // //Check if calibration switch is on --> if on, run calibration protocol
+  // if (!readFreezeSwitch()) {
+  //   // Check if open or close buttons are pressed (if both, default it open)
+  //   normalRun();
+  // } 
+  // else {
+
+  //   calibrate();
+  // }
 };
