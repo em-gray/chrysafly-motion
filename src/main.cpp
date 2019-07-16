@@ -30,6 +30,8 @@
 #define A_ENCODER_PIN A2 // some analog in pin
 #define B_ENCODER_PIN A3 // some analog in pin
 
+#define TIMER_SYNC A5 // for Arduino 0 to tell Arduino 1 to sync up
+
 //MOTOR IDENTIFIERS
 #define MOTOR_A 0; // top motor
 #define MOTOR_B 1; // bottom motor
@@ -38,10 +40,10 @@
 
 // VARIABLE INITIALIZATIONS
 int i;
-
-long time;
-long timeRef;
-long timeAbs;
+int time;
+int timeRef;
+int timeAbs;
+bool resetArduino1;
 float period;
 float pos[2];
 float nextPos[] = {0,0,0,0};
@@ -56,8 +58,8 @@ float maxPosB;
 float minPosB;
 
 // TODO: CHANGE THIS BACK TO ZEROES
-float allMin[] = {2, 4, 1, 3};
-float allMax[] = {8, -4, 6, 9};
+float allMin[] = {1, 1, 1, 1};
+float allMax[] = {15, 15, 15, 15};
 
 Encoder A;
 Encoder B;
@@ -77,7 +79,12 @@ int muxRead(int A, int B, int C) {
   //delay(100);
   return digitalRead(3);
 }
-bool readCalibSwitch(){
+
+bool readSafeStart(){
+  return muxRead(1,1,1);
+}
+
+bool readFreezeSwitch(){
   return muxRead(0,0,0);
 }
 bool readMotorSwitch(){
@@ -101,25 +108,17 @@ bool readSetMinButton(){
 void setMax(int motor){
   if(motor == 0){
     maxPosA = A.getPosition();
-    Serial.print("MAX:");
-    Serial.println(maxPosA);
   }
   if(motor == 1){
     maxPosB = B.getPosition();
-    Serial.print("MAX:");
-    Serial.println(maxPosB);
   }
 }
 void setMin(int motor){
   if(motor == 0){
     minPosA = A.getPosition();
-    Serial.print("MIN:");
-    Serial.println(minPosA);
   }
   if(motor == 1){
     minPosB = B.getPosition();
-    Serial.print("MIN:");
-    Serial.println(minPosB);
   }
 }
 float getMin(int motor){
@@ -177,7 +176,6 @@ void calibratingMotor(int motor, boolean isClosing) {
 }
 
 void calibrate(){
-  Serial.println("Calibrating");
     wasCalibrating = true;
 
     calibrateMotor = readMotorSwitch();
@@ -226,27 +224,16 @@ void postCalibrationSetup() {
   }
 
   sigmoidPath.Init(allMin, allMax);
-  // Serial.println(allMin[0]);
-  // Serial.println(allMin[1]);
-  // Serial.println(allMin[2]);
-  // Serial.println(allMin[3]);
-  // Serial.println(allMax[0]);
-  // Serial.println(allMax[1]);
-  // Serial.println(allMax[2]);
-  // Serial.println(allMax[3]);
-
 }
 
 void normalRun() {
-
+  // Serial.print("Normal run loop");
   if(wasCalibrating) {
     postCalibrationSetup();
     Serial.print("Post calibration setup complete");
   }
 
   if ((time - timeRef)/1000.0 > period) {
-    // Serial.print("Period: ");
-    // Serial.println(period);
     timeRef = time;
   }
 
@@ -254,6 +241,13 @@ void normalRun() {
     for(i = 0; i < 2; i++) {
       nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
       motorControl.run(pos[i], nextPos[i], i) ;
+      if (i == 0){
+        Serial.print("Target position: ");
+        Serial.println(next);
+        Serial.print("Time: ");
+        Serial.println((time - timeRef)/1000.0);
+      }
+
     }  
   }
   else {
@@ -275,6 +269,12 @@ void setup() {
   pinMode(B_ENCODER_PIN, INPUT);
   md.init();
 
+  if (ARDUINO_0){
+    pinMode(TIMER_SYNC, OUTPUT);
+  } else { // ARDUINO_1
+    pinMode(TIMER_SYNC, INPUT);
+  };
+
   A.init(A_ENCODER_PIN);
   B.init(B_ENCODER_PIN);
 
@@ -284,6 +284,9 @@ void setup() {
   pinMode(13, OUTPUT);
   sigmoidPath.Init(allMin, allMax);
   period = sigmoidPath.getPeriod();
+    // Init reset value
+  resetArduino1 = 0;
+  
 }
 
 
@@ -308,12 +311,28 @@ void loop() {
   // Serial.print(muxRead(1,1,0)); //Setmin
   // Serial.println("");
 
-  if ((time - timeRef)/1000.0 > period) {
-    timeRef = time;
+  // Routine for periodicity and synchronization
+  if (ARDUINO_0){
+    if ((time - timeRef)/1000.0 > period) {
+      timeRef = time;
+      if (resetArduino1){
+        resetArduino1 = 0;
+      } else {
+        resetArduino1 = 1;
+      }
+      digitalWrite(TIMER_SYNC, resetArduino1);
+    }
+  } else { // ARDUINO_1
+    int readSync = digitalRead(TIMER_SYNC);
+    if(readSync != resetArduino1){
+      timeRef = time;
+      resetArduino1 = readSync;
+    }
   };
 
-  // Check if calibration switch is on --> if on, run calibration protocol
-  if (!readCalibSwitch()) {
+
+  //Check if calibration switch is on --> if on, run calibration protocol
+  if (!readFreezeSwitch()) {
     // Check if open or close buttons are pressed (if both, default it open)
     normalRun();
   } 
@@ -321,4 +340,4 @@ void loop() {
 
     calibrate();
   }
-}
+};
