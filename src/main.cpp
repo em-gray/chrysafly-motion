@@ -289,7 +289,7 @@ void setup() {
 
 
 void loop() {
-  //dataInit();
+  dataInit();
   time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
@@ -329,29 +329,27 @@ void loop() {
     }
   };
 
-  Serial.print("Target: ");
-  Serial.print(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
 
-  Serial.print("   Period: ");
-  Serial.print(period);
+  // UNCOMMENT TO DEBUG CASCADE MOTION
+  // Serial.print("m0: ");
+  // Serial.print(sigmoidPath.getNextPos(0,(time - timeRef)/1000.0));
 
-  Serial.print("   Time: ");
-  Serial.print(time/1000.0);
+  // Serial.print(" m1: ");
+  // Serial.print(sigmoidPath.getNextPos(1,(time - timeRef)/1000.0));
 
-  Serial.print("   TimeRef: ");
-  Serial.println(timeRef/1000.0);
+  // Serial.print(" m2: ");
+  // Serial.print(sigmoidPath.getNextPos(2,(time - timeRef)/1000.0));
 
+  // Serial.print(" m3: ");
+  // Serial.println(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
 
+  //Check if calibration switch is on --> if on, run calibration protocol
+  if (!readFreezeSwitch()) {
+    // Check if open or close buttons are pressed (if both, default it open)
+    normalRun();
+  } 
+  else {
 
-
-
-  // //Check if calibration switch is on --> if on, run calibration protocol
-  // if (!readFreezeSwitch()) {
-  //   // Check if open or close buttons are pressed (if both, default it open)
-  //   normalRun();
-  // } 
-  // else {
-
-  //   calibrate();
-  // }
+    calibrate();
+  }
 };
