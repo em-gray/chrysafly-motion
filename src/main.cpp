@@ -6,11 +6,16 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 1
+#define ARDUINO_0 0
 //#define ARDUINO_1 true
 
 // Wing segment reference:
 // Numbers are motors, letters refer to symmetric wing segents.
+
+// ***NOTE: As of July 18th, 2019: Only segment C is physically controllable
+// due to motor mounting issues. For BiTF, this means only controlling segment
+// C, and only doing so manually while in calibration mode. More to come.
+
 //     _.._        _.._
 //   :' A  \  ,, /  A `;  
 //   (  B   \(0)/   B  )
@@ -19,16 +24,16 @@
 //     \ D / (3) \ D /
 //      ^^^       ^^^
 
-// Notes on calibration protocol:
+// Notes on calibration protocol for auto mode:
 // - bring wings in to min, set encoder lapCount to 0
-// - bring wings out to max, counting encoder rotations. Save num rotations as max.
+// - bring wings out to max, click out of calibration mode
 
 // Code for Master-duino
-#define A_MOTOR_PIN 9 // some pwm pin (from motor driver)
-#define B_MOTOR_PIN 10 // some pwm pin (from motor driver)
+#define A_MOTOR_PIN 9 // a pwm pin (from motor driver)
+#define B_MOTOR_PIN 10 // a pwm pin (from motor driver)
 
-#define A_ENCODER_PIN A2 // some analog in pin
-#define B_ENCODER_PIN A3 // some analog in pin
+#define A_ENCODER_PIN A2 // an analog in pin
+#define B_ENCODER_PIN A3 // an analog in pin
 
 #define TIMER_SYNC A5 // for Arduino 0 to tell Arduino 1 to sync up
 
@@ -36,20 +41,19 @@
 #define MOTOR_A 0; // top motor
 #define MOTOR_B 1; // bottom motor
 
-// #define READ_RATE 10 //miliseconds 
-
 // VARIABLE INITIALIZATIONS
 int i;
 unsigned long time;
 unsigned long timeRef;
 int timeAbs;
-bool resetArduino1;
+boolean resetArduino1;
 float period;
 float pos[2];
 float nextPos[] = {0,0,0,0};
 int calibrateMotor;
 boolean calibrating;
 boolean wasCalibrating = true;
+boolean safe = false;
 
 float maxPosA;
 float minPosA;
@@ -207,6 +211,8 @@ void calibrate(){
       setMin(calibrateMotor);
     }
 
+    safe = false;
+
 }     
 
 void postCalibrationSetup() {
@@ -293,23 +299,25 @@ void loop() {
   time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
-  // Serial.print(" ");
-  // Serial.print(muxRead(0,0,0)); //Calibrate mode on or off 
-  // Serial.print(" ");
-  // Serial.print(muxRead(0,0,1)); //Arduino Switch
-  // Serial.print(" ");
-  // Serial.print(muxRead(0,1,0)); //Motor Switch
-  // Serial.print(" ");
-  // Serial.print(muxRead(0,1,1)); //Forewards
-  // Serial.print(" ");
-  // Serial.print(muxRead(1,0,0)); //Backwards
-  // Serial.print(" ");
-  // Serial.print(muxRead(1,0,1)); //Setmax 
-  // Serial.print(" ");
-  // Serial.print(muxRead(1,1,0)); //Setmin
-  // Serial.println("");
+  // Serial.print("Kill        ");
+  // Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
+  // Serial.print("Arduino   ");
+  // Serial.println(muxRead(0,0,1)); //Arduino Switch
+  // Serial.print("motor   ");
+  // Serial.println(muxRead(0,1,0)); //Motor Switch
+  // Serial.print("forward   ");
+  // Serial.println(muxRead(0,1,1)); //Forewards
+  // Serial.print("backward    ");
+  // Serial.println(muxRead(1,0,0)); //Backwards
+  // Serial.print("max   ");
+  // Serial.println(muxRead(1,0,1)); //Setmax 
+  // Serial.print("min   ");
+  // Serial.println(muxRead(1,1,0)); //Setmin
+  // Serial.println("safe    ");
+  // Serial.println(muxRead(1,1,1));
+  // delay(2000);
 
-  // Routine for periodicity and synchronization
+  // Routine for periodicity and synchronization between Arduinos
   if (ARDUINO_0){
     if ((time - timeRef)/1000.0 > period) {
       timeRef = time;
@@ -345,6 +353,12 @@ void loop() {
 
   //Check if calibration switch is on --> if on, run calibration protocol
   if (!readFreezeSwitch()) {
+    if(wasCalibrating) {
+      if(!safe) {
+        calibrate();
+        safe = readSafeStart();
+      }
+    }
     // Check if open or close buttons are pressed (if both, default it open)
     normalRun();
   } 
