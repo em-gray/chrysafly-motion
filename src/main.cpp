@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 0
+#define ARDUINO_0 true
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -61,9 +61,9 @@ float minPosA;
 float maxPosB;
 float minPosB;
 
-// TODO: CHANGE THIS BACK TO ZEROES
-float allMin[] = {1.0, 1.0, 1.0, 1.0};
-float allMax[] = {5.0, 5.0, 5.0, 5.0};
+// TODO: CHANGE THIS BACK TO ZEROES --> COMPLETED
+float allMin[] = {0.0, 0.0, 0.0, 0.0};
+float allMax[] = {0.0, 0.0, 0.0, 0.0};
 
 Encoder A;
 Encoder B;
@@ -112,17 +112,25 @@ bool readSetMinButton(){
 void setMax(int motor){
   if(motor == 0){
     maxPosA = A.getPosition();
+    //Serial.print("Max A set as: ");
+    //Serial.print(maxPosA);
   }
   if(motor == 1){
     maxPosB = B.getPosition();
+    //Serial.print("Max B set as: ");
+    //Serial.print(maxPosB);
   }
 }
 void setMin(int motor){
   if(motor == 0){
     minPosA = A.getPosition();
+    //Serial.print("Min A set as: ");
+    //Serial.print(minPosA);
   }
   if(motor == 1){
     minPosB = B.getPosition();
+    //Serial.print("Min B set as: ");
+    //Serial.print(minPosB);
   }
 }
 float getMin(int motor){
@@ -165,9 +173,9 @@ void dataInit() {
 
   // Read time each loop
   time = millis();
-  if ((time - timeRef)/1000.0 > period){
-    timeRef = time;
-  }
+  // if ((time - timeRef)/1000.0 > period){
+  //   timeRef = time;
+  // }
 }
 
 void calibratingMotor(int motor, boolean isClosing) {
@@ -187,29 +195,39 @@ void calibrate(){
 
     calibrateMotor = readMotorSwitch();
 
-    if((ARDUINO_0 + !readArduinoSwitch()) % 2) {
+    if(readArduinoSwitch()) {
+      //Serial.println("In this Arduino");
       // Calibrating 
       if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
+        //Serial.println("Open button read");
       }
       else if(readCloseButton()) {
         calibratingMotor(calibrateMotor, true);
+        //Serial.println("Close button read");
       }
       else {
         motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
       }
+
+      if (readSetMaxButton()) {
+        //Serial.println("Max button read");
+        setMax(calibrateMotor);
+      } 
+      else if (readSetMinButton()) {
+        //Serial.println("Min button read");
+        setMin(calibrateMotor);
+      }
+
     }
+
     else {
       motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
     }
     motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
   
     // Check if set max or set min buttons are pressed (if both default is set max)
-    if (readSetMaxButton()) {
-      setMax(calibrateMotor);
-    } else if (readSetMinButton()) {
-      setMin(calibrateMotor);
-    }
+
 
     safe = false;
 
@@ -295,6 +313,7 @@ void setup() {
 
 
 void loop() {
+
   dataInit();
   time = millis();
   //encoderUpdate();
@@ -319,7 +338,12 @@ void loop() {
 
   // Routine for periodicity and synchronization between Arduinos
   if (ARDUINO_0){
+    // Serial.print("time: ");
+    // Serial.println(time);
+    // Serial.print("timeRef: ");
+    // Serial.println(timeRef);
     if ((time - timeRef)/1000.0 > period) {
+      //Serial.println(resetArduino1);
       timeRef = time;
       if (resetArduino1){
         resetArduino1 = 0;
@@ -330,7 +354,9 @@ void loop() {
     }
   } else { // ARDUINO_1
     int readSync = digitalRead(TIMER_SYNC);
+    //Serial.println(readSync);
     if(readSync != resetArduino1){
+      //Serial.println("SENT");
       // TODO: double check communication
       timeRef = time;
       resetArduino1 = readSync;
@@ -352,15 +378,25 @@ void loop() {
   // Serial.println(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
 
   //Check if calibration switch is on --> if on, run calibration protocol
+  //Serial.print("Freeze switch: ");
+  //Serial.println(readFreezeSwitch());
+
   if (!readFreezeSwitch()) {
-    if(wasCalibrating) {
-      if(!safe) {
+    //Serial.print("Previously calibrating: ");
+    //Serial.println(wasCalibrating);
+    if(wasCalibrating) {   
+      if(readSafeStart()) {
+        //Serial.println("Safe button read");
+        normalRun();
+      }
+      else{
         calibrate();
-        safe = readSafeStart();
       }
     }
+    else {
+      normalRun();
+    }
     // Check if open or close buttons are pressed (if both, default it open)
-    normalRun();
   } 
   else {
 
