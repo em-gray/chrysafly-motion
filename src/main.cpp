@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 true
+#define ARDUINO_0 false
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -112,25 +112,25 @@ bool readSetMinButton(){
 void setMax(int motor){
   if(motor == 0){
     maxPosA = A.getPosition();
-    //Serial.print("Max A set as: ");
-    //Serial.print(maxPosA);
+    Serial.print("Max A set as: ");
+    Serial.println(maxPosA);
   }
   if(motor == 1){
     maxPosB = B.getPosition();
-    //Serial.print("Max B set as: ");
-    //Serial.print(maxPosB);
+    Serial.print("Max B set as: ");
+    Serial.println(maxPosB);
   }
 }
 void setMin(int motor){
   if(motor == 0){
     minPosA = A.getPosition();
-    //Serial.print("Min A set as: ");
-    //Serial.print(minPosA);
+    Serial.print("Min A set as: ");
+    Serial.println(minPosA);
   }
   if(motor == 1){
     minPosB = B.getPosition();
-    //Serial.print("Min B set as: ");
-    //Serial.print(minPosB);
+    Serial.print("Min B set as: ");
+    Serial.println(minPosB);
   }
 }
 float getMin(int motor){
@@ -273,7 +273,8 @@ void normalRun() {
   else {
       for(i = 2; i < 4; i++) {
       nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
-      motorControl.run(pos[i-2], nextPos[i], i) ;   
+      Serial.println(nextPos[i]);
+      motorControl.run(pos[i-2], nextPos[i], i-2) ;   
     } 
   }
 }
@@ -289,7 +290,7 @@ void setup() {
   pinMode(B_ENCODER_PIN, INPUT);
   md.init();
 
-  if (ARDUINO_0){
+  if (!ARDUINO_0){
     pinMode(TIMER_SYNC, OUTPUT);
   } else { // ARDUINO_1
     pinMode(TIMER_SYNC, INPUT);
@@ -315,6 +316,10 @@ void setup() {
 void loop() {
 
   dataInit();
+  Serial.print("Pos A: ");
+  Serial.println(A.getPosition());
+  Serial.print("Pos B: ");
+  Serial.println(B.getPosition());
   time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
@@ -337,7 +342,7 @@ void loop() {
   // delay(2000);
 
   // Routine for periodicity and synchronization between Arduinos
-  if (ARDUINO_0){
+  if (!ARDUINO_0){
     // Serial.print("time: ");
     // Serial.println(time);
     // Serial.print("timeRef: ");
