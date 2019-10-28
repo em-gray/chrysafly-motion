@@ -3,7 +3,7 @@
 
 // ADJUSTABLE PARAMETER
 #define OPEN_INCREMENT 13;
-#define CLOSE_INCREMENT 6;
+#define CLOSE_INCREMENT 1;
 
 LinePath::LinePath() {}
 
