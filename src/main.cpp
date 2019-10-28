@@ -49,7 +49,9 @@ int timeAbs;
 boolean resetArduino1;
 float period;
 float pos[2];
-float nextPos[] = {0,0,0,0};
+float nextPos[] = {0, 0, 0, 0};
+// TODO: UNCOMMMENT THIS
+// float nextPos[] = {0,0,0,0};
 int calibrateMotor;
 boolean calibrating;
 boolean wasCalibrating = true;
@@ -98,10 +100,20 @@ bool readArduinoSwitch(){
   return muxRead(0,0,1);
 }
 bool readOpenButton(){
-  return muxRead(0,1,1);
+  if(ARDUINO_0) {
+    return muxRead(0,1,1);
+  }
+  else {
+    return muxRead(1,0,0);
+  }
 }
 bool readCloseButton(){
-  return muxRead(1,0,0);
+  if(ARDUINO_0) {
+    return muxRead(1,0,0);
+  }
+  else {
+    return muxRead(0,1,1);
+  }
 }
 bool readSetMaxButton(){
   return muxRead(1,0,1);
@@ -184,41 +196,41 @@ void calibratingMotor(int motor, boolean isClosing) {
   }
   else{
     nextPos[motor] = linePath.getOpenPath(pos[motor]);
-    if(nextPos[motor] > pos[motor]) {
-    }
+    // if(nextPos[motor] > pos[motor]) {
+    // }
   }
   motorControl.run(pos[motor], nextPos[motor], motor);
 }
 
 void calibrate(){
+    Serial.println("NOW CALIBRATING");
     wasCalibrating = true;
 
     calibrateMotor = readMotorSwitch();
 
     if(readArduinoSwitch()) {
-      //Serial.println("In this Arduino");
+      Serial.println("In this Arduino");
       // Calibrating 
       if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
-        //Serial.println("Open button read");
+        Serial.println("Open button read");
       }
       else if(readCloseButton()) {
         calibratingMotor(calibrateMotor, true);
-        //Serial.println("Close button read");
+        Serial.println("Close button read");
       }
       else {
         motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
       }
 
       if (readSetMaxButton()) {
-        //Serial.println("Max button read");
+        Serial.println("Max button read");
         setMax(calibrateMotor);
       } 
       else if (readSetMinButton()) {
-        //Serial.println("Min button read");
+        Serial.println("Min button read");
         setMin(calibrateMotor);
       }
-
     }
 
     else {
@@ -255,6 +267,7 @@ void postCalibrationSetup() {
 
 void normalRun() {
   // Serial.print("Normal run loop");
+
   if(wasCalibrating) {
     postCalibrationSetup();
     Serial.print("Post calibration setup complete");
@@ -323,23 +336,23 @@ void loop() {
   time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
-  // Serial.print("Kill        ");
-  // Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
-  // Serial.print("Arduino   ");
-  // Serial.println(muxRead(0,0,1)); //Arduino Switch
-  // Serial.print("motor   ");
-  // Serial.println(muxRead(0,1,0)); //Motor Switch
-  // Serial.print("forward   ");
-  // Serial.println(muxRead(0,1,1)); //Forewards
-  // Serial.print("backward    ");
-  // Serial.println(muxRead(1,0,0)); //Backwards
-  // Serial.print("max   ");
-  // Serial.println(muxRead(1,0,1)); //Setmax 
-  // Serial.print("min   ");
-  // Serial.println(muxRead(1,1,0)); //Setmin
-  // Serial.println("safe    ");
-  // Serial.println(muxRead(1,1,1));
-  // delay(2000);
+  Serial.print("Kill        ");
+  Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
+  Serial.print("Arduino   ");
+  Serial.println(muxRead(0,0,1)); //Arduino Switch
+  Serial.print("motor   ");
+  Serial.println(muxRead(0,1,0)); //Motor Switch
+  Serial.print("forward   ");
+  Serial.println(muxRead(0,1,1)); //Forewards
+  Serial.print("backward    ");
+  Serial.println(muxRead(1,0,0)); //Backwards
+  Serial.print("max   ");
+  Serial.println(muxRead(1,0,1)); //Setmax 
+  Serial.print("min   ");
+  Serial.println(muxRead(1,1,0)); //Setmin
+  Serial.println("safe    ");
+  Serial.println(muxRead(1,1,1));
+  delay(2000);
 
   // Routine for periodicity and synchronization between Arduinos
   if (!ARDUINO_0){
@@ -368,26 +381,27 @@ void loop() {
     }
   };
 
-
   // UNCOMMENT TO DEBUG CASCADE MOTION
-  // Serial.print("m0: ");
-  // Serial.print(sigmoidPath.getNextPos(0,(time - timeRef)/1000.0));
+  Serial.print("m0: ");
+  Serial.print(sigmoidPath.getNextPos(0,(time - timeRef)/1000.0));
 
-  // Serial.print(" m1: ");
-  // Serial.print(sigmoidPath.getNextPos(1,(time - timeRef)/1000.0));
+  Serial.print(" m1: ");
+  Serial.print(sigmoidPath.getNextPos(1,(time - timeRef)/1000.0));
 
-  // Serial.print(" m2: ");
-  // Serial.print(sigmoidPath.getNextPos(2,(time - timeRef)/1000.0));
+  Serial.print(" m2: ");
+  Serial.print(sigmoidPath.getNextPos(2,(time - timeRef)/1000.0));
 
-  // Serial.print(" m3: ");
-  // Serial.println(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
+  Serial.print(" m3: ");
+  Serial.println(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
 
   //Check if calibration switch is on --> if on, run calibration protocol
   //Serial.print("Freeze switch: ");
   //Serial.println(readFreezeSwitch());
 
-  if (!readFreezeSwitch()) {
-    //Serial.print("Previously calibrating: ");
+  // TODO: UNCOMMENT THIS!!!
+  if(false) {
+  // if (!readFreezeSwitch()) {
+    // Serial.print("Previously calibrating: ");
     //Serial.println(wasCalibrating);
     if(wasCalibrating) {   
       if(readSafeStart()) {
