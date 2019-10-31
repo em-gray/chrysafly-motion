@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 false //front/bottom arduino
+#define ARDUINO_0 true //front/top arduino
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -100,10 +100,10 @@ bool readArduinoSwitch(){
   return muxRead(0,0,1);
 }
 bool readOpenButton(){
-  return muxRead(0,1,1);
+  return muxRead(1,0,0);
 }
 bool readCloseButton(){
-  return muxRead(1,0,0);
+  return muxRead(0,1,1);
 }
 bool readSetMaxButton(){
   return muxRead(1,0,1);
@@ -200,7 +200,15 @@ void calibrate(){
 
     if(readArduinoSwitch()) {
       Serial.println("In this Arduino");
+      
+      // if(true){
+      //   calibratingMotor(calibrateMotor, false);
+      //   delay(3);
+      //   calibratingMotor(calibrateMotor, true);
+      //   delay(3);
+      // }
       // Calibrating 
+      // IMPORTANT TODO: UNCOMMENT THIS!
       if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
         // Serial.println("Open button read");
