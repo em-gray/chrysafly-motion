@@ -41,6 +41,10 @@
 #define MOTOR_A 0; // top motor
 #define MOTOR_B 1; // bottom motor
 
+#define OPEN 0
+#define CLOSE 1
+#define STAY 2
+
 // VARIABLE INITIALIZATIONS
 int i;
 unsigned long time;
@@ -104,20 +108,20 @@ bool readArduinoSwitch(){
   return muxRead(0,0,1);
 }
 bool readOpenButton(){
-  if (ARDUINO_0) {
+  // if (ARDUINO_0) {
     return muxRead(1,0,0);
-  }
-  else {
-    return muxRead(0,1,1);
-  }
+  // }
+  // else {
+  //   return muxRead(0,1,1);
+  // }
 }
 bool readCloseButton(){
-  if (ARDUINO_0) {
+  // if (ARDUINO_0) {
     return muxRead(0,1,1);    
-  }
-  else {
-    return muxRead(1,0,0);
-  }
+  // }
+  // else {
+  //   return muxRead(1,0,0);
+  // }
 
 }
 bool readSetMaxButton(){
@@ -211,14 +215,14 @@ void dataInit() {
 
 void calibratingMotor(int motor, boolean isClosing) {
   if(isClosing) {
-    nextPos[motor] = linePath.getClosePath(pos[motor]);
+    nextPos[motor] = linePath.getClosePath(pos[motor], ARDUINO_0);
   }
   else{
-    nextPos[motor] = linePath.getOpenPath(pos[motor]);
+    nextPos[motor] = linePath.getOpenPath(pos[motor], ARDUINO_0);
     // if(nextPos[motor] > pos[motor]) {
     // }
   }
-  motorControl.run(pos[motor], nextPos[motor], motor);
+  motorControl.run(pos[motor], nextPos[motor], motor, STAY);
 }
 
 void calibrate(){
@@ -250,12 +254,12 @@ void calibrate(){
       }
       else {
         if(prevWasRunning){
-          motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+          motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor, STAY);
           Serial.print("NextPos: ");
           Serial.println(pos[calibrateMotor]);
         }
         else {
-          motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
+          motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor, STAY);
           Serial.print("NextPos: ");
           Serial.println(prev1[calibrateMotor]);
         }
@@ -273,23 +277,23 @@ void calibrate(){
 
     else {
       if(prevWasRunning){
-        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor, STAY);
         Serial.print("NextPos: ");
         Serial.println(pos[calibrateMotor]);
       }
       else {
-        motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
+        motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor, STAY);
         Serial.print("NextPos: ");
         Serial.println(prev1[calibrateMotor]);
       }
     }
     if(prevWasRunning){
-      motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
+      motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor, STAY);
       Serial.print("NextPos: ");
       Serial.println(pos[!calibrateMotor]);
     }
     else {
-      motorControl.run(pos[!calibrateMotor], prev1[!calibrateMotor], !calibrateMotor);
+      motorControl.run(pos[!calibrateMotor], prev1[!calibrateMotor], !calibrateMotor, STAY);
       Serial.print("NextPos: ");
       Serial.println(prev1[!calibrateMotor]);
     }
@@ -344,14 +348,14 @@ void normalRun() {
   if(ARDUINO_0) {
     for(i = 0; i < 2; i++) {
       nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
-      motorControl.run(pos[i], nextPos[i], i);
+      motorControl.run(pos[i], nextPos[i], i, (time < period / 2.0));
     }  
   }
   else {
       for(i = 2; i < 4; i++) {
       nextPos[i] = sigmoidPath.getNextPos(i, (time - timeRef)/1000.0);
       Serial.println(nextPos[i]);
-      motorControl.run(pos[i-2], nextPos[i], i-2) ;   
+      motorControl.run(pos[i-2], nextPos[i], i-2, (time > period / 2.0)) ;   
     } 
   }
 

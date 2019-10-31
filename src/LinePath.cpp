@@ -2,17 +2,29 @@
 #include <LinePath.h>
 
 // ADJUSTABLE PARAMETER
-#define OPEN_INCREMENT 0.05;
+#define OPEN_INCREMENT 0.07;
 #define CLOSE_INCREMENT 1;
 
 LinePath::LinePath() {}
 
-float LinePath::getOpenPath(float currPos) {
-    float nextPos = currPos + OPEN_INCREMENT;
-    return nextPos;
+float LinePath::getOpenPath(float currPos, boolean arduino_0) {
+
+    if (arduino_0) {
+        return currPos + OPEN_INCREMENT;
+    }
+    else {
+        return currPos + CLOSE_INCREMENT;
+    }
+    
 }
 
-float LinePath::getClosePath(float currPos) {
-    float nextPos = currPos - CLOSE_INCREMENT;
-    return nextPos;
+float LinePath::getClosePath(float currPos, boolean arduino_0) {
+
+    if (arduino_0) {
+        return currPos - CLOSE_INCREMENT;
+    }
+    else {
+        return currPos - OPEN_INCREMENT;
+    }
+
 }

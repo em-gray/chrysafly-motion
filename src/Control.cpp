@@ -4,7 +4,9 @@
 #include <Encoder.h>
 
 // ADJUSTABLE PARAMETERS
-#define P_COEFF 2000;
+#define P_OPEN 2000;
+#define P_STAY 2000;
+#define P_CLOSE 500;
 #define OFFSET 50;
 
 // CONSTANTS -- DO NOT CHANGE
@@ -18,6 +20,7 @@
 #define STAY 2
 
 bool isInit = false;
+int speed;
 int cappedSpeed;
 int flippedSpeed;
 
@@ -25,7 +28,7 @@ DualG2HighPowerMotorShield24v14 motorLib;
 
 Control::Control() {}
 
-void Control::run(float currPos, float nextPos, int motor) {
+void Control::run(float currPos, float nextPos, int motor, int direction) {
     float diff = nextPos - currPos;
 
     if (!isInit){
@@ -34,7 +37,16 @@ void Control::run(float currPos, float nextPos, int motor) {
         isInit = true;
     }
     
-    int speed = diff*(float)P_COEFF;
+    if (direction == OPEN) {
+        speed = diff*(float)P_OPEN;
+    }
+    else if (direction == CLOSE) {
+        speed = diff*(float)P_CLOSE;
+    }
+    else {
+        speed = diff*(float)P_STAY;
+    }
+
     
     if (speed > MAX_SPEED) {
         cappedSpeed = MAX_SPEED - 1;

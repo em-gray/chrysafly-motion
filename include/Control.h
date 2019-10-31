@@ -7,5 +7,5 @@ class Control {
 
     public:
         Control();
-        void run(float currPos, float nextPos, int motor);
+        void run(float currPos, float nextPos, int motor, int direction);
 };
