@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 true
+#define ARDUINO_0 false
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -389,8 +389,7 @@ void loop() {
   //Serial.println(readFreezeSwitch());
 
   // TODO: UNCOMMENT THIS!!!
-  if(false) {
-  // if (!readFreezeSwitch()) {
+  if (!readFreezeSwitch()) {
     // Serial.print("Previously calibrating: ");
     //Serial.println(wasCalibrating);
     if(wasCalibrating) {   
@@ -403,12 +402,11 @@ void loop() {
       }
     }
     else {
-      calibrate();
+      normalRun();
     }
     // Check if open or close buttons are pressed (if both, default it open)
   } 
   else {
-
     calibrate();
   }
 };
