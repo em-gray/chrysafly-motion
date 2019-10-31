@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 false
+#define ARDUINO_0 false //front/bottom arduino
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -100,10 +100,10 @@ bool readArduinoSwitch(){
   return muxRead(0,0,1);
 }
 bool readOpenButton(){
-  return muxRead(1,0,0);
+  return muxRead(0,1,1);
 }
 bool readCloseButton(){
-  return muxRead(0,1,1);
+  return muxRead(1,0,0);
 }
 bool readSetMaxButton(){
   return muxRead(1,0,1);
@@ -203,31 +203,36 @@ void calibrate(){
       // Calibrating 
       if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
-        Serial.println("Open button read");
+        // Serial.println("Open button read");
       }
       else if(readCloseButton()) {
         calibratingMotor(calibrateMotor, true);
-        Serial.println("Close button read");
+        // Serial.println("Close button read");
       }
       else {
         motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+        Serial.print("NextPos: ");
+        Serial.println(pos[calibrateMotor]);
       }
 
       if (readSetMaxButton()) {
-        Serial.println("Max button read");
+        // Serial.println("Max button read");
         setMax(calibrateMotor);
       } 
       else if (readSetMinButton()) {
-        Serial.println("Min button read");
+        // Serial.println("Min button read");
         setMin(calibrateMotor);
       }
     }
 
     else {
       motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+      Serial.print("NextPos: ");
+      Serial.println(pos[calibrateMotor]);
     }
     motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
-  
+    Serial.print("!NextPos: ");
+    Serial.println(pos[!calibrateMotor]);
     // Check if set max or set min buttons are pressed (if both default is set max)
 
 
@@ -257,6 +262,7 @@ void postCalibrationSetup() {
 
 void normalRun() {
   // Serial.print("Normal run loop");
+  Serial.println("NOW RUNNING");
 
   if(wasCalibrating) {
     postCalibrationSetup();
@@ -333,14 +339,14 @@ void loop() {
   Serial.print("motor   ");
   Serial.println(muxRead(0,1,0)); //Motor Switch
   Serial.print("forward   ");
-  Serial.println(muxRead(0,1,1)); //Forewards
+  Serial.println(readOpenButton()); //Forewards
   Serial.print("backward    ");
-  Serial.println(muxRead(1,0,0)); //Backwards
+  Serial.println(readCloseButton()); //Backwards
   Serial.print("max   ");
   Serial.println(muxRead(1,0,1)); //Setmax 
   Serial.print("min   ");
   Serial.println(muxRead(1,1,0)); //Setmin
-  Serial.println("safe    ");
+  Serial.print("safe    ");
   Serial.println(muxRead(1,1,1));
   delay(2000);
 
@@ -372,17 +378,17 @@ void loop() {
   };
 
   // UNCOMMENT TO DEBUG CASCADE MOTION
-  Serial.print("m0: ");
-  Serial.print(sigmoidPath.getNextPos(0,(time - timeRef)/1000.0));
+  // Serial.print("m0: ");
+  // Serial.print(sigmoidPath.getNextPos(0,(time - timeRef)/1000.0));
 
-  Serial.print(" m1: ");
-  Serial.print(sigmoidPath.getNextPos(1,(time - timeRef)/1000.0));
+  // Serial.print(" m1: ");
+  // Serial.print(sigmoidPath.getNextPos(1,(time - timeRef)/1000.0));
 
-  Serial.print(" m2: ");
-  Serial.print(sigmoidPath.getNextPos(2,(time - timeRef)/1000.0));
+  // Serial.print(" m2: ");
+  // Serial.print(sigmoidPath.getNextPos(2,(time - timeRef)/1000.0));
 
-  Serial.print(" m3: ");
-  Serial.println(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
+  // Serial.print(" m3: ");
+  // Serial.println(sigmoidPath.getNextPos(3,(time - timeRef)/1000.0));
 
   //Check if calibration switch is on --> if on, run calibration protocol
   //Serial.print("Freeze switch: ");
