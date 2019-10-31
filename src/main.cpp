@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 true //front/top arduino
+#define ARDUINO_0 false //front/top arduino
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -58,6 +58,7 @@ int calibrateMotor;
 boolean calibrating;
 boolean wasCalibrating = true;
 boolean wasRunning = false;
+boolean prevWasRunning = false;
 boolean safe = false;
 
 float maxPosA;
@@ -103,10 +104,21 @@ bool readArduinoSwitch(){
   return muxRead(0,0,1);
 }
 bool readOpenButton(){
-  return muxRead(1,0,0);
+  if (ARDUINO_0) {
+    return muxRead(1,0,0);
+  }
+  else {
+    return muxRead(0,1,1);
+  }
 }
 bool readCloseButton(){
-  return muxRead(0,1,1);
+  if (ARDUINO_0) {
+    return muxRead(0,1,1);    
+  }
+  else {
+    return muxRead(1,0,0);
+  }
+
 }
 bool readSetMaxButton(){
   return muxRead(1,0,1);
@@ -237,7 +249,7 @@ void calibrate(){
         // Serial.println("Close button read");
       }
       else {
-        if(wasRunning){
+        if(prevWasRunning){
           motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
           Serial.print("NextPos: ");
           Serial.println(pos[calibrateMotor]);
@@ -260,7 +272,7 @@ void calibrate(){
     }
 
     else {
-      if(wasRunning){
+      if(prevWasRunning){
         motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
         Serial.print("NextPos: ");
         Serial.println(pos[calibrateMotor]);
@@ -271,16 +283,24 @@ void calibrate(){
         Serial.println(prev1[calibrateMotor]);
       }
     }
-    if(wasRunning){
+    if(prevWasRunning){
       motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
       Serial.print("NextPos: ");
       Serial.println(pos[!calibrateMotor]);
-      wasRunning = false;
     }
     else {
       motorControl.run(pos[!calibrateMotor], prev1[!calibrateMotor], !calibrateMotor);
       Serial.print("NextPos: ");
       Serial.println(prev1[!calibrateMotor]);
+    }
+
+    if(prevWasRunning) {
+      prevWasRunning = false;
+    }
+
+    if(wasRunning) {
+      wasRunning = false;
+      prevWasRunning = true;
     }
 
     // Check if set max or set min buttons are pressed (if both default is set max)
