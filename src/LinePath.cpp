@@ -2,7 +2,7 @@
 #include <LinePath.h>
 
 // ADJUSTABLE PARAMETER
-#define OPEN_INCREMENT 0.003;
+#define OPEN_INCREMENT 0.01;
 #define CLOSE_INCREMENT 1;
 
 LinePath::LinePath() {}

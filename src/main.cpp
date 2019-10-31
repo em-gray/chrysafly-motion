@@ -57,6 +57,7 @@ float nextPos[] = {0, 0, 0, 0};
 int calibrateMotor;
 boolean calibrating;
 boolean wasCalibrating = true;
+boolean wasRunning = false;
 boolean safe = false;
 
 float maxPosA;
@@ -227,16 +228,25 @@ void calibrate(){
       // IMPORTANT TODO: UNCOMMENT THIS!
       if(readOpenButton()) {
         calibratingMotor(calibrateMotor, false);
+        wasRunning = true;
         // Serial.println("Open button read");
       }
       else if(readCloseButton()) {
         calibratingMotor(calibrateMotor, true);
+        wasRunning = true;
         // Serial.println("Close button read");
       }
       else {
-        motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
-        Serial.print("NextPos: ");
-        Serial.println(pos[calibrateMotor]);
+        if(wasRunning){
+          motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+          Serial.print("NextPos: ");
+          Serial.println(pos[calibrateMotor]);
+        }
+        else {
+          motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
+          Serial.print("NextPos: ");
+          Serial.println(prev1[calibrateMotor]);
+        }
       }
 
       if (readSetMaxButton()) {
@@ -250,16 +260,30 @@ void calibrate(){
     }
 
     else {
-      motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
-      Serial.print("NextPos: ");
-      Serial.println(prev1[calibrateMotor]);
+      if(wasRunning){
+        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+        Serial.print("NextPos: ");
+        Serial.println(pos[calibrateMotor]);
+      }
+      else {
+        motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
+        Serial.print("NextPos: ");
+        Serial.println(prev1[calibrateMotor]);
+      }
     }
-    motorControl.run(pos[!calibrateMotor], prev1[!calibrateMotor], !calibrateMotor);
-    Serial.print("!NextPos: ");
-    Serial.println(prev1[!calibrateMotor]);
+    if(wasRunning){
+      motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
+      Serial.print("NextPos: ");
+      Serial.println(pos[!calibrateMotor]);
+      wasRunning = false;
+    }
+    else {
+      motorControl.run(pos[!calibrateMotor], prev1[!calibrateMotor], !calibrateMotor);
+      Serial.print("NextPos: ");
+      Serial.println(prev1[!calibrateMotor]);
+    }
+
     // Check if set max or set min buttons are pressed (if both default is set max)
-
-
     safe = false;
 
 }     
@@ -310,6 +334,8 @@ void normalRun() {
       motorControl.run(pos[i-2], nextPos[i], i-2) ;   
     } 
   }
+
+  wasRunning = true;
 }
 
 
