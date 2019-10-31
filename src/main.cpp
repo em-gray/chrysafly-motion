@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 false
+#define ARDUINO_0 true
 //#define ARDUINO_1 true
 
 // Wing segment reference:
