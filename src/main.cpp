@@ -100,20 +100,10 @@ bool readArduinoSwitch(){
   return muxRead(0,0,1);
 }
 bool readOpenButton(){
-  if(ARDUINO_0) {
-    return muxRead(0,1,1);
-  }
-  else {
-    return muxRead(1,0,0);
-  }
+  return muxRead(0,1,1);
 }
 bool readCloseButton(){
-  if(ARDUINO_0) {
-    return muxRead(1,0,0);
-  }
-  else {
-    return muxRead(0,1,1);
-  }
+  return muxRead(1,0,0);
 }
 bool readSetMaxButton(){
   return muxRead(1,0,1);
