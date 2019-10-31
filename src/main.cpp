@@ -49,6 +49,8 @@ int timeAbs;
 boolean resetArduino1;
 float period;
 float pos[2];
+float prev1[] = {0, 0};
+float prev2[] = {0, 0};
 float nextPos[] = {0, 0, 0, 0};
 // TODO: UNCOMMMENT THIS
 // float nextPos[] = {0,0,0,0};
@@ -166,12 +168,26 @@ void encoderUpdate() {
 void dataInit() {
   // Read position each loop
   encoderUpdate();
+  prev2[0]=prev1[0];
+  prev2[1]=prev1[1];
+  prev1[0]=pos[0];
+  prev1[1]=pos[1];
   pos[0] = A.getPosition();
   pos[1]= B.getPosition();
-  // Serial.print("POSITIONS ");
-  // Serial.print(pos[0]);
-  // Serial.print(" ");
-  // Serial.println(pos[1]);
+
+  // DEBUGGING
+  Serial.print("POS: ");
+  Serial.print(pos[0]);
+  Serial.print(" ");
+  Serial.println(pos[1]);
+  Serial.print("PREV1: ");
+  Serial.print(prev1[0]);
+  Serial.print(" ");
+  Serial.println(prev1[1]);
+  Serial.print("PREV2: ");
+  Serial.print(prev2[0]);
+  Serial.print(" ");
+  Serial.println(prev2[1]);
 
   // Read time each loop
   time = millis();
@@ -218,7 +234,7 @@ void calibrate(){
         // Serial.println("Close button read");
       }
       else {
-        motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+        motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
         Serial.print("NextPos: ");
         Serial.println(pos[calibrateMotor]);
       }
@@ -234,13 +250,13 @@ void calibrate(){
     }
 
     else {
-      motorControl.run(pos[calibrateMotor], pos[calibrateMotor], calibrateMotor);
+      motorControl.run(pos[calibrateMotor], prev1[calibrateMotor], calibrateMotor);
       Serial.print("NextPos: ");
-      Serial.println(pos[calibrateMotor]);
+      Serial.println(prev1[calibrateMotor]);
     }
-    motorControl.run(pos[!calibrateMotor], pos[!calibrateMotor], !calibrateMotor);
+    motorControl.run(pos[!calibrateMotor], prev1[!calibrateMotor], !calibrateMotor);
     Serial.print("!NextPos: ");
-    Serial.println(pos[!calibrateMotor]);
+    Serial.println(prev1[!calibrateMotor]);
     // Check if set max or set min buttons are pressed (if both default is set max)
 
 
@@ -325,7 +341,15 @@ void setup() {
     // Init reset value
   resetArduino1 = 0;
   time = millis();
-  
+
+  encoderUpdate();
+  pos[0] = A.getPosition();
+  pos[1]= B.getPosition();
+  prev1[0]=pos[0];
+  prev1[1]=pos[1];
+  prev2[0]=prev1[0];
+  prev2[1]=prev1[1];
+  delay(1000);
 }
 
 
@@ -340,23 +364,22 @@ void loop() {
   time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
-  Serial.print("Kill        ");
-  Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
-  Serial.print("Arduino   ");
-  Serial.println(muxRead(0,0,1)); //Arduino Switch
-  Serial.print("motor   ");
-  Serial.println(muxRead(0,1,0)); //Motor Switch
-  Serial.print("forward   ");
-  Serial.println(readOpenButton()); //Forewards
-  Serial.print("backward    ");
-  Serial.println(readCloseButton()); //Backwards
-  Serial.print("max   ");
-  Serial.println(muxRead(1,0,1)); //Setmax 
-  Serial.print("min   ");
-  Serial.println(muxRead(1,1,0)); //Setmin
-  Serial.print("safe    ");
-  Serial.println(muxRead(1,1,1));
-  delay(2000);
+  // Serial.print("Kill        ");
+  // Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
+  // Serial.print("Arduino   ");
+  // Serial.println(muxRead(0,0,1)); //Arduino Switch
+  // Serial.print("motor   ");
+  // Serial.println(muxRead(0,1,0)); //Motor Switch
+  // Serial.print("forward   ");
+  // Serial.println(readOpenButton()); //Forewards
+  // Serial.print("backward    ");
+  // Serial.println(readCloseButton()); //Backwards
+  // Serial.print("max   ");
+  // Serial.println(muxRead(1,0,1)); //Setmax 
+  // Serial.print("min   ");
+  // Serial.println(muxRead(1,1,0)); //Setmin
+  // Serial.print("safe    ");
+  // Serial.println(muxRead(1,1,1));
 
   // Routine for periodicity and synchronization between Arduinos
   if (!ARDUINO_0){
@@ -408,7 +431,6 @@ void loop() {
     //Serial.println(wasCalibrating);
     if(wasCalibrating) {   
       if(readSafeStart()) {
-        //Serial.println("Safe button read");
         normalRun();
       }
       else{

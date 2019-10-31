@@ -4,7 +4,7 @@
 #include <Encoder.h>
 
 // ADJUSTABLE PARAMETERS
-#define P_COEFF 450;
+#define P_COEFF 6000;
 #define OFFSET 50;
 
 // CONSTANTS -- DO NOT CHANGE
