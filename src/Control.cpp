@@ -4,7 +4,7 @@
 #include <Encoder.h>
 
 // ADJUSTABLE PARAMETERS
-#define P_COEFF 150;
+#define P_COEFF 600;
 #define OFFSET 50;
 
 // CONSTANTS -- DO NOT CHANGE
@@ -12,6 +12,10 @@
 #define MAX_SPEED 400
 #define TOP_MOTOR 0
 #define BOTTOM_MOTOR 1
+
+#define OPEN 0
+#define CLOSE 1
+#define STAY 2
 
 bool isInit = false;
 int cappedSpeed;
@@ -31,7 +35,7 @@ void Control::run(float currPos, float nextPos, int motor) {
     }
     
     int speed = diff*(float)P_COEFF;
-
+    
     if (speed > MAX_SPEED) {
         cappedSpeed = MAX_SPEED - 1;
     } 

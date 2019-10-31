@@ -403,7 +403,7 @@ void loop() {
       }
     }
     else {
-      normalRun();
+      calibrate();
     }
     // Check if open or close buttons are pressed (if both, default it open)
   } 
