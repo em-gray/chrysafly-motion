@@ -38,15 +38,17 @@ void Control::run(float currPos, float nextPos, int motor, int direction) {
     }
     
     if (direction == OPEN) {
+        Serial.println("direction == open");
         speed = diff*(float)P_OPEN;
     }
     else if (direction == CLOSE) {
+        Serial.println("direction == close");
         speed = diff*(float)P_CLOSE;
     }
     else {
+        Serial.println("direction == stay");
         speed = diff*(float)P_STAY;
     }
-
     
     if (speed > MAX_SPEED) {
         cappedSpeed = MAX_SPEED - 1;

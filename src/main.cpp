@@ -6,7 +6,7 @@
 #include <LinePath.h>
 #include <Wire.h>
 
-#define ARDUINO_0 false //front/top arduino
+#define ARDUINO_0 true //front/top arduino
 //#define ARDUINO_1 true
 
 // Wing segment reference:
@@ -158,7 +158,7 @@ float getMin(int motor){
   if(motor == 0){
     return minPosA;
   }
-  else { // if motor == 1
+  else { // if motor == 1  
     return minPosB;
   }
 }
@@ -414,22 +414,23 @@ void loop() {
   time = millis();
   //encoderUpdate();
   // UNCOMMENT FOR CALIBRATION MENU DEBUG
-  // Serial.print("Kill        ");
-  // Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
-  // Serial.print("Arduino   ");
-  // Serial.println(muxRead(0,0,1)); //Arduino Switch
-  // Serial.print("motor   ");
-  // Serial.println(muxRead(0,1,0)); //Motor Switch
-  // Serial.print("forward   ");
-  // Serial.println(readOpenButton()); //Forewards
-  // Serial.print("backward    ");
-  // Serial.println(readCloseButton()); //Backwards
-  // Serial.print("max   ");
-  // Serial.println(muxRead(1,0,1)); //Setmax 
-  // Serial.print("min   ");
-  // Serial.println(muxRead(1,1,0)); //Setmin
-  // Serial.print("safe    ");
-  // Serial.println(muxRead(1,1,1));
+  Serial.print("Kill        ");
+  Serial.println(muxRead(0,0,0)); //Calibrate mode on or off 
+  Serial.print("Arduino   ");
+  Serial.println(muxRead(0,0,1)); //Arduino Switch
+  Serial.print("motor   ");
+  Serial.println(muxRead(0,1,0)); //Motor Switch
+  Serial.print("forward   ");
+  Serial.println(readOpenButton()); //Forewards
+  Serial.print("backward    ");
+  Serial.println(readCloseButton()); //Backwards
+  Serial.print("max   ");
+  Serial.println(muxRead(1,0,1)); //Setmax 
+  Serial.print("min   ");
+  Serial.println(muxRead(1,1,0)); //Setmin
+  Serial.print("safe    ");
+  Serial.println(muxRead(1,1,1));
+  delay(1000);
 
   // Routine for periodicity and synchronization between Arduinos
   if (!ARDUINO_0){
